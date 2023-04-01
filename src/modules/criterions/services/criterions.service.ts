@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCriterionDto } from './dto/create-criterion.dto';
-import { UpdateCriterionDto } from './dto/update-criterion.dto';
+
+import { CreateCriterionDto } from '../dto/create-criterion.dto';
+import { UpdateCriterionDto } from '../dto/update-criterion.dto';
 
 @Injectable()
 export class CriterionsService {

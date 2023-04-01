@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CriterionsService } from './criterions.service';
-import { CriterionsController } from './criterions.controller';
+import { CriterionsService } from './services/criterions.service';
+import { CriterionsController } from './controllers/criterions.controller';
 
 @Module({
   controllers: [CriterionsController],

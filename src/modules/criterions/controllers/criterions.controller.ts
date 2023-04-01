@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CriterionsService } from './criterions.service';
-import { CreateCriterionDto } from './dto/create-criterion.dto';
-import { UpdateCriterionDto } from './dto/update-criterion.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { CriterionsService } from '../services/criterions.service';
+import { CreateCriterionDto } from '../dto/create-criterion.dto';
+import { UpdateCriterionDto } from '../dto/update-criterion.dto';
 
 @Controller('criterions')
 export class CriterionsController {
