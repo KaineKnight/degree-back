@@ -9,7 +9,7 @@ import { AppService } from './app.service';
 import { typeOrmConfigAsync } from './config';
 import { AuthModule } from './modules/auth/auth.module';
 
-import CriterionsModule from './modules/criterions';
+import CriterionsModule from './modules/criterion';
 import UsersModule from './modules/users';
 import TasksModule from './modules/tasks';
 import { AtGuard } from './common/guards';

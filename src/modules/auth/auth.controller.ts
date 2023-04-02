@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -13,14 +12,12 @@ import {
 import { AuthService } from './auth.service';
 import { Tokens } from './types';
 import { AuthLoginDto, AuthSignUpnDto } from './dto';
-import {
-  GetCurrentUser,
-  GetCurrentUserId,
-  Public,
-} from './../../common/decorators';
 import { RtGuard } from 'src/common/guards';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import {
+  GetRequestUser,
+  GetRequestUserId,
+  Public,
+} from 'src/common/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +41,7 @@ export class AuthController {
 
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number) {
+  logout(@GetRequestUserId() userId: number) {
     return this.authService.logout(userId);
   }
 
@@ -53,8 +50,8 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('refreshToken') refreshToken: string,
+    @GetRequestUserId() userId: number,
+    @GetRequestUser('refreshToken') refreshToken: string,
   ) {
     return this.authService.refreshTokens(userId, refreshToken);
   }
