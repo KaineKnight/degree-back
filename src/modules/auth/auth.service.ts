@@ -73,7 +73,6 @@ export class AuthService {
         hashedRt: hash,
       },
     );
-
   }
 
   async login(dto: AuthLoginDto): Promise<Tokens> {
@@ -83,12 +82,12 @@ export class AuthService {
     if (!user) throw new ForbiddenException('Access Denied');
     const passwordMathes = await bcrypt.compare(dto.password, user.password);
     if (!passwordMathes) throw new ForbiddenException('Access Denied');
-    
+
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }
-  
+
   async logout(userId) {
     await this.userRepository.update(
       {
@@ -100,12 +99,12 @@ export class AuthService {
       },
     );
   }
-  
+
   async refreshTokens(userId: number, rt: string) {
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
-    if (!user) throw new ForbiddenException('Access Denied');
+    if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
     const rtMatches = await bcrypt.compare(rt, user.hashedRt);
     if (!rtMatches) throw new ForbiddenException('Access Denied');

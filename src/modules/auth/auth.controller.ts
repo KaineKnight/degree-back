@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -13,14 +12,18 @@ import {
 import { AuthService } from './auth.service';
 import { Tokens } from './types';
 import { AuthLoginDto, AuthSignUpnDto } from './dto';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
-
+import {
+  GetCurrentUser,
+  GetCurrentUserId,
+  Public,
+} from './../../common/decorators';
+import { RtGuard } from 'src/common/guards';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('signup')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
@@ -28,6 +31,7 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
+  @Public()
   @Post('login')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
@@ -35,19 +39,20 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Req() req: Request) {
-    const user = req.user;
-    return this.authService.logout(user['sub']);
+  logout(@GetCurrentUserId() userId: number) {
+    return this.authService.logout(userId);
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @Public()
+  @UseGuards(RtGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(@Req() req: Request) {
-    const user = req.user;
-    return this.authService.refreshTokens(user['sub'], user['refreshToken']);
+  refreshTokens(
+  //  @GetCurrentUserId() userId: number,
+  //  @GetCurrentUser('refreshToken') refreshToken: string,
+  ) {
+  //  return this.authService.refreshTokens(userId, refreshToken);
   }
 }

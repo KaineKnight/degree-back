@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import CriterionsModule from './modules/criterions';
 import UsersModule from './modules/users';
 import TasksModule from './modules/tasks';
+import { AtGuard } from './common/guards';
 
 @Module({
   imports: [
@@ -22,6 +24,12 @@ import TasksModule from './modules/tasks';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    },
+  ],
 })
 export class AppModule {}
