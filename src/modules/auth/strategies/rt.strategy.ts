@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Req } from '@nestjs/common';
 import { ContextIdFactory } from '@nestjs/core';
 
 @Injectable()
@@ -10,11 +10,12 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.RT_SECRET,
+      passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: any) {
-    console.log(req);
+    // console.log(req);
     
     const refreshToken = req
       ?.get('authorization')
@@ -22,9 +23,10 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
       .trim();
     if (!refreshToken)
       throw new ForbiddenException('Refresh token unacceptable ')
-    return {
+    const user = {
       ...payload,
       refreshToken,
     };
+    return user;
   }
 }
