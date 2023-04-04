@@ -6,14 +6,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import entities from '../entities';
 
 export class TypeormConfig {
-  static getOrmConfig(configService: ConfigService): TypeOrmModuleOptions {
+  static getOrmConfig(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
-      host: configService.get('DB_HOST'),
-      port: configService.get('DB_PORT'),
-      username: configService.get('DB_USERNAME'),
-      password: configService.get('DB_PASSWORD'),
-      database: configService.get('DB_NAME'),
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: entities,
       synchronize: true,
     };
@@ -22,8 +22,7 @@ export class TypeormConfig {
 
 export const typeOrmConfigAsync: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
-  useFactory: async (
-    configService: ConfigService,
-  ): Promise<TypeOrmModuleOptions> => TypeormConfig.getOrmConfig(configService),
+  useFactory: async (): Promise<TypeOrmModuleOptions> =>
+    TypeormConfig.getOrmConfig(),
   inject: [ConfigService],
 };

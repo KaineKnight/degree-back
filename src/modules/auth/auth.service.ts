@@ -29,7 +29,7 @@ export class AuthService {
         },
         {
           secret: process.env.AT_SECRET,
-          expiresIn: 60 * 15,
+          expiresIn: 60 * 60 * 15,
         },
       ),
       this.jwtService.signAsync(

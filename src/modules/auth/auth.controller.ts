@@ -1,3 +1,4 @@
+import { Tokens } from './types/tokens.type';
 import {
   Body,
   Controller,
@@ -10,7 +11,6 @@ import {
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
-import { Tokens } from './types';
 import { AuthLoginDto, AuthSignUpnDto } from './dto';
 import { RtGuard } from 'src/common/guards';
 import {
@@ -18,11 +18,15 @@ import {
   GetRequestUserId,
   Public,
 } from 'src/common/decorators';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('auth')
+@ApiTags('Users')
+@Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'User registration' })
+  @ApiResponse({ status: 201, type: 'Token' })
   @Public()
   @Post('signup')
   @UsePipes(ValidationPipe)
@@ -39,7 +43,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('/logout')
+  @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetRequestUserId() userId: number) {
     return this.authService.logout(userId);
