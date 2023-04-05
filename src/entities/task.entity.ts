@@ -10,6 +10,7 @@ export class Task {
   title: string;
 
   @Column()
+  @Generated('uuid')
   trackNumber: string;
 
   @Column()
@@ -19,7 +20,10 @@ export class Task {
   contactPhone: string;
 
   @Column({ nullable: true })
-  contactEmail: string;
+  contactEmail?: string;
+
+  @Column({ default: true })
+  isActive: boolean;
 
   @OneToMany(() => TaskUser, (user) => user.task)
   users: TaskUser[];

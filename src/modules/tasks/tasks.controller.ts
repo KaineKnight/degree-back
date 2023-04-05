@@ -6,11 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 
-import { TasksService } from '../services/tasks.service';
-import { CreateTaskDto } from '../dto/create-task.dto';
-import { UpdateTaskDto } from '../dto/update-task.dto';
+import { TasksService } from './tasks.service';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { PageOptionsDto } from '../../utils/pagination/page-options.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -22,8 +26,12 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  @HttpCode(HttpStatus.OK)
+  findAll(
+    @Query() pageOptionsDto: PageOptionsDto,
+    @Query('searchTemplate') searchTemplate: string,
+  ) {
+    return this.tasksService.findAll(pageOptionsDto, searchTemplate);
   }
 
   @Get(':id')
