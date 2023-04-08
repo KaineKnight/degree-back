@@ -4,17 +4,14 @@ import { Task } from './task.entity';
 
 @Entity('tasks_users')
 export class TaskUser {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.tasks)
   user: User;
 
   @ManyToOne(() => Task, (task) => task.users)
   task: Task;
-
-  @Column()
-  superCriterion: number;
 
   @Column()
   isRejected: boolean;

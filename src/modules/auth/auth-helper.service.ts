@@ -19,7 +19,7 @@ export class AuthHelperService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, email: string): Promise<Tokens> {
+  async getTokens(userId: string, email: string): Promise<Tokens> {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -49,7 +49,7 @@ export class AuthHelperService {
     };
   }
 
-  async updateRtHash(userId: number, rt: string) {
+  async updateRtHash(userId: string, rt: string) {
     const hash = await this.hashData(rt);
     await this.userRepository.update(
       {

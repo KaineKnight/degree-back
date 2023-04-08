@@ -33,7 +33,7 @@ export class UsersController {
   }
 
   @Get('/:id')
-  getUserById(@Param('id', ParseIntPipe) id: number) {
+  getUserById(@Param('id', ParseIntPipe) id: string) {
     const user = this.usersService.fetchUserById(id);
     if (!user) throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     return user;

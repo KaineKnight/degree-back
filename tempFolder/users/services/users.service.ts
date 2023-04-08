@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 export class UsersService {
   fakeUsers = [
     {
-      username: 'Anson',
+      username: 'AnSon',
       email: 'anson@anson.com',
     },
     {
@@ -26,7 +26,7 @@ export class UsersService {
     return 0;
   }
 
-  fetchUserById(id: number) {
-    return { id, username: 'Anson', email: 'anson@email.com' };
+  fetchUserById(id: string) {
+    return { id, username: 'AnSon', email: 'anSon@email.com' };
   }
 }

@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -56,7 +56,7 @@ export class AuthService {
     );
   }
 
-  async refreshTokens(userId: number, rt: string) {
+  async refreshTokens(userId: string, rt: string) {
     const user = await this.userRepository.findOneBy({
       id: userId,
     });
@@ -70,5 +70,5 @@ export class AuthService {
     return tokens;
   }
 
-  async checkToken() {}
+  // async checkToken() {}
 }
