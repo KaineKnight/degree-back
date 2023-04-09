@@ -1,11 +1,16 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-
-import { User } from 'src/entities';
-import { IsNull, Not, Repository } from 'typeorm';
-import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
+import { IsNull, Not, Repository } from 'typeorm';
+
+import { User } from '../../entities';
+
+import { Tokens } from './types';
 import { AuthLoginDto, AuthSignUpnDto } from './dto';
 import { AuthHelperService } from './auth-helper.service';
 
@@ -19,6 +24,8 @@ export class AuthService {
   ) {}
 
   async signup(dto: AuthSignUpnDto): Promise<Tokens> {
+    const user = await this.userRepository.findOneBy({ email: dto.email });
+    if (user) throw new BadRequestException('User Already exist');
     const hash = await this.authHelper.hashData(dto.password);
 
     const newUser = await this.userRepository.save({
@@ -26,8 +33,8 @@ export class AuthService {
       password: hash,
     });
 
-    const tokens = await this.authHelper.getTokens(newUser.id, newUser.email);
-    await this.authHelper.updateRtHash(newUser.id, tokens.refresh_token);
+    const tokens = await this.authHelper.getTokens(newUser);
+    await this.authHelper.updateRtHash(newUser, tokens.refresh_token);
     return tokens;
   }
 
@@ -39,8 +46,8 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.authHelper.getTokens(user.id, user.email);
-    await this.authHelper.updateRtHash(user.id, tokens.refresh_token);
+    const tokens = await this.authHelper.getTokens(user);
+    await this.authHelper.updateRtHash(user, tokens.refresh_token);
     return tokens;
   }
 
@@ -65,8 +72,8 @@ export class AuthService {
     const rtMatches = await bcrypt.compare(rt, user.hashedRt);
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.authHelper.getTokens(user.id, user.email);
-    await this.authHelper.updateRtHash(user.id, tokens.refresh_token);
+    const tokens = await this.authHelper.getTokens(user);
+    await this.authHelper.updateRtHash(user, tokens.refresh_token);
     return tokens;
   }
 

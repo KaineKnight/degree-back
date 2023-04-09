@@ -19,12 +19,12 @@ export class AuthHelperService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: string, email: string): Promise<Tokens> {
+  async getTokens(user: User): Promise<Tokens> {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: userId,
-          email,
+          sub: user.id,
+          user,
         },
         {
           secret: process.env.AT_SECRET,
@@ -33,8 +33,8 @@ export class AuthHelperService {
       ),
       this.jwtService.signAsync(
         {
-          sub: userId,
-          email,
+          sub: user.id,
+          user,
         },
         {
           secret: process.env.RT_SECRET,
@@ -49,11 +49,11 @@ export class AuthHelperService {
     };
   }
 
-  async updateRtHash(userId: string, rt: string) {
+  async updateRtHash(user: User, rt: string) {
     const hash = await this.hashData(rt);
     await this.userRepository.update(
       {
-        id: userId,
+        id: user.id,
       },
       {
         hashedRt: hash,
