@@ -9,6 +9,8 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { TasksService } from './tasks.service';
@@ -22,7 +24,9 @@ import { Public } from '../../common/decorators/public.decorator';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @Public()
   @Post()
+  @UsePipes(ValidationPipe)
   create(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
   }
@@ -34,8 +38,14 @@ export class TasksController {
     @GetRequestUserId() userId: string,
     @Query() pageOptionsDto: PageOptionsDto,
     @Query('searchTemplate') searchTemplate: string,
+    @Query('isRecommendation') isRecommendation: boolean,
   ) {
-    return this.tasksService.findAll(pageOptionsDto, searchTemplate, userId);
+    return this.tasksService.findAll(
+      pageOptionsDto,
+      searchTemplate,
+      userId,
+      Boolean(isRecommendation),
+    );
   }
 
   @Get(':id')

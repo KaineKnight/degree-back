@@ -20,9 +20,6 @@ export class Task {
   title: string;
 
   @Column()
-  trackNumber: string;
-
-  @Column()
   contactName: string;
 
   @Column()
