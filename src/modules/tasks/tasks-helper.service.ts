@@ -30,23 +30,50 @@ export class TasksHelperService {
     // 4. compute maxMinPriceDiff and maxMinTimeDiff
     let maxPrice = 0;
     let minPrice = 1;
+    let maxTime = 1; // Nega Time
     let minTime = 0;
-    let maxTime = 1;
+    const minMax = {
+      maxPrice: 0,
+      minPrice: 1,
+      maxTime: 1, // nega time
+      minTime: 0,
+      maxBrand: 0,
+      minBrand: 1,
+      maxCategory: 0,
+      minCategory: 1,
+      maxCommonness: 0,
+      minCommonness: 1,
+    };
 
     tasks.forEach((task) => {
       const price = task?.problem?.price ?? 0;
-      if (price > maxPrice) maxPrice = price;
-      if (price < minPrice) minPrice = price;
+      const time = -task?.problem?.time ?? 0; // nega time
+      const brand = task?.brand?.weight ?? 0;
+      const category = task?.category?.weight ?? 0;
+      const commonness = task?.problem?.commonnessWeight ?? 0;
+      // minMax.
+      if (price > minMax.maxPrice) minMax.maxPrice = price;
+      if (price < minMax.minPrice) minMax.minPrice = price;
 
       // time in minutes
-      const time = task?.problem?.time ?? 0;
-      const timeReplacement = -time;
-      if (timeReplacement > maxTime) maxTime = timeReplacement;
-      if (timeReplacement < minTime) minTime = timeReplacement;
+      if (time > minMax.maxTime) minMax.maxTime = time;
+      if (time < minMax.minTime) minMax.minTime = time;
+
+      if (brand > minMax.maxBrand) minMax.maxBrand = brand;
+      if (brand < minMax.minBrand) minMax.minBrand = brand;
+
+      if (category > minMax.maxCategory) minMax.maxCategory = category;
+      if (category < minMax.minCategory) minMax.minCategory = category;
+
+      if (commonness > minMax.maxCommonness) minMax.maxCommonness = commonness;
+      if (commonness < minMax.minCommonness) minMax.minCommonness = commonness;
     });
 
-    const maxMinPriceDiff = maxPrice - minPrice;
-    const maxMinTimeDiff = maxTime - minTime;
+    const maxMinPriceDiff = minMax.maxPrice - minMax.minPrice;
+    const maxMinTimeDiff = minMax.maxTime - minMax.minTime;
+    const maxMinBrandDiff = minMax.maxBrand - minMax.minBrand;
+    const maxMinCategoryDiff = minMax.maxCategory - minMax.minCategory;
+    const maxMinCommonnessDiff = minMax.maxCommonness - minMax.minCommonness;
 
     // 5. compute supercriterion for every task
     tasks.forEach((task: any) => {
@@ -63,6 +90,9 @@ export class TasksHelperService {
       // 5.2  normalize weights if needed
       const normalPrice = !price ? 1 : (price - minPrice) / maxMinPriceDiff;
       const normalTime = !time ? 1 : (-time - minTime) / maxMinTimeDiff;
+      const normalBrand = 1;
+      const normalCategory = 1;
+      const normalCommonness = 1;
 
       // 5.3 product weights and priorities
       const priceWeight = normalPrice * priorities[Criterions.price];

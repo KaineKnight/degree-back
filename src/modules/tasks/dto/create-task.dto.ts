@@ -32,5 +32,5 @@ export class CreateTaskDto {
   brandId: string;
 
   @IsNotEmpty()
-  problemId: string;
+  problem: string;
 }
