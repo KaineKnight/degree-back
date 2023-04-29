@@ -28,10 +28,6 @@ export class TasksHelperService {
       .map((item) => parseInt(item));
 
     // 4. compute maxMinPriceDiff and maxMinTimeDiff
-    let maxPrice = 0;
-    let minPrice = 1;
-    let maxTime = 1; // Nega Time
-    let minTime = 0;
     const minMax = {
       maxPrice: 0,
       minPrice: 1,
@@ -51,7 +47,7 @@ export class TasksHelperService {
       const brand = task?.brand?.weight ?? 0;
       const category = task?.category?.weight ?? 0;
       const commonness = task?.problem?.commonnessWeight ?? 0;
-      // minMax.
+
       if (price > minMax.maxPrice) minMax.maxPrice = price;
       if (price < minMax.minPrice) minMax.minPrice = price;
 
@@ -88,8 +84,10 @@ export class TasksHelperService {
       );
 
       // 5.2  normalize weights if needed
-      const normalPrice = !price ? 1 : (price - minPrice) / maxMinPriceDiff;
-      const normalTime = !time ? 1 : (-time - minTime) / maxMinTimeDiff;
+      const normalPrice = !price
+        ? 1
+        : (price - minMax.minPrice) / maxMinPriceDiff;
+      const normalTime = !time ? 1 : (-time - minMax.minTime) / maxMinTimeDiff;
       const normalBrand = 1;
       const normalCategory = 1;
       const normalCommonness = 1;

@@ -12,7 +12,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import UsersModule from './modules/users';
 import TasksModule from './modules/tasks';
 import { AtGuard } from './common/guards';
-import { RolesModule } from './modules/roles/roles.module';
+import { BrandModule } from './modules/brand/brand.module';
+import { CategoryModule } from './modules/category/category.module';
+import { ProblemModule } from './modules/problem/problem.module';
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { RolesModule } from './modules/roles/roles.module';
     TasksModule,
     UsersModule,
     AuthModule,
-    RolesModule,
+    BrandModule,
+    CategoryModule,
+    ProblemModule,
   ],
   controllers: [AppController],
   providers: [
