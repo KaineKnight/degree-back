@@ -1,4 +1,3 @@
-import { Tokens } from './types/tokens.type';
 import {
   Body,
   Controller,
@@ -9,16 +8,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { AuthService } from './auth.service';
-import { AuthLoginDto, AuthSignUpnDto } from './dto';
 import { RtGuard } from 'src/common/guards';
 import {
   GetRequestUser,
   GetRequestUserId,
   Public,
 } from 'src/common/decorators';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { AuthService } from './auth.service';
+import { AuthLoginDto, AuthSignUpnDto } from './dto';
+import { Tokens } from './types/tokens.type';
 
 @ApiTags('Users')
 @Controller()

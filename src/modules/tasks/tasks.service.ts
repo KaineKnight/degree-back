@@ -26,14 +26,11 @@ export class TasksService {
 
   async findAll(
     pageOptionsDto: PageOptionsDto,
-    searchTemplate: string,
+    search: string,
     userId: string,
     isRecommendation: boolean,
   ) {
-    const { take } = pageOptionsDto;
-    const { skip } = pageOptionsDto;
-    const { order } = pageOptionsDto;
-    const search = searchTemplate || '';
+    const { take, skip, order } = pageOptionsDto;
     // regular request to database
     if (!userId && !isRecommendation) {
       const [data, itemCount] = await this.taskRepository.findAndCount({

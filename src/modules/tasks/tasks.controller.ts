@@ -26,6 +26,7 @@ export class TasksController {
 
   @Public()
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @UsePipes(ValidationPipe)
   create(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
@@ -37,12 +38,12 @@ export class TasksController {
   findAll(
     @GetRequestUserId() userId: string,
     @Query() pageOptionsDto: PageOptionsDto,
-    @Query('searchTemplate') searchTemplate: string,
+    @Query('search') search: string,
     @Query('isRecommendation') isRecommendation: boolean,
   ) {
     return this.tasksService.findAll(
       pageOptionsDto,
-      searchTemplate,
+      search ?? '',
       userId,
       Boolean(isRecommendation),
     );

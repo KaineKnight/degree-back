@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { TaskUser } from './task-user.entity';
 import { Category } from './category.entity';
 import { Problem } from './problem.entity';
@@ -18,6 +19,9 @@ export class Task {
 
   @Column()
   title: string;
+
+  @Column({ nullable: true })
+  description: string;
 
   @Column()
   contactName: string;

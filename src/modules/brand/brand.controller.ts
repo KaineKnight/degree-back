@@ -6,7 +6,24 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
+  UsePipes,
+  ValidationPipe,
+  Query,
 } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
+
+import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
+import {
+  ID_PARAM,
+  ID_PROPERTY,
+  NO_SEARCH,
+  SEARCH_QUERY,
+} from 'src/utils/constants';
+import { Brand } from 'src/entities';
+import { PageDto } from 'src/utils/pagination/page.dto';
+
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -16,27 +33,40 @@ export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @Post()
-  create(@Body() createBrandDto: CreateBrandDto) {
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(ValidationPipe)
+  create(@Body() createBrandDto: CreateBrandDto): Promise<Brand> {
     return this.brandService.create(createBrandDto);
   }
 
   @Get()
-  findAll() {
-    return this.brandService.findAll();
+  @HttpCode(HttpStatus.OK)
+  findAll(
+    @Query() pageOptionsDto: PageOptionsDto,
+    @Query(SEARCH_QUERY) search: string,
+  ): Promise<PageDto<Brand>> {
+    return this.brandService.findAll(pageOptionsDto, search ?? NO_SEARCH);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.brandService.findOne(+id);
+  @Get(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  findOne(@Param(ID_PROPERTY) id: string): Promise<Brand> {
+    return this.brandService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
-    return this.brandService.update(+id, updateBrandDto);
+  @Patch(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(ValidationPipe)
+  update(
+    @Param(ID_PROPERTY) id: string,
+    @Body() updateBrandDto: UpdateBrandDto,
+  ): Promise<Brand> {
+    return this.brandService.update(id, updateBrandDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.brandService.remove(+id);
+  @Delete(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  remove(@Param(ID_PROPERTY) id: string): Promise<DeleteResult> {
+    return this.brandService.remove(id);
   }
 }

@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
 import { Task } from './task.entity';
 
 @Entity('brands')
@@ -6,10 +7,10 @@ export class Brand {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   title: string;
 
-  @Column()
+  @Column({ default: 0 })
   weight: number;
 
   @OneToMany(() => Task, (task) => task.brand)
