@@ -5,9 +5,9 @@ import {
   NestModule,
 } from '@nestjs/common';
 
-import { UsersMiddleware } from './middlewares/users.middleware';
+import { UsersMiddleware } from './users.middleware';
 import { UsersController } from './controllers/users.controller';
-import { UsersService } from './services/users.service';
+import { UsersService } from './users.service';
 
 @Module({
   controllers: [UsersController],

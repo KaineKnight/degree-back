@@ -1,3 +1,1 @@
-import { TasksModule } from './tasks.module';
-
-export default TasksModule;
+export * from './tasks.module';

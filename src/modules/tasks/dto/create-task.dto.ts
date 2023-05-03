@@ -6,8 +6,6 @@ import {
   IsString,
 } from 'class-validator';
 
-import { Brand, Category, Status } from 'src/entities';
-
 export class CreateTaskDto {
   @IsNotEmpty()
   @IsString()
@@ -32,5 +30,5 @@ export class CreateTaskDto {
   brandId: string;
 
   @IsNotEmpty()
-  problem: string;
+  problemTitle: string;
 }

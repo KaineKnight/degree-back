@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
-import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
+import { PageOptionsDto, PageDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
@@ -22,11 +22,9 @@ import {
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { Brand } from 'src/entities';
-import { PageDto } from 'src/utils/pagination/page.dto';
 
 import { BrandService } from './brand.service';
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
+import { CreateBrandDto, UpdateBrandDto } from './dto';
 
 @Controller('brand')
 export class BrandController {

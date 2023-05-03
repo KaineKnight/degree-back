@@ -12,13 +12,20 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
+
+import { PageOptionsDto, PageDto } from '../../utils/pagination';
+import { GetRequestUserId, Public } from '../../common/decorators';
+import {
+  ID_PARAM,
+  ID_PROPERTY,
+  NO_SEARCH,
+  SEARCH_QUERY,
+} from 'src/utils/constants';
+import { Task } from 'src/entities';
 
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { PageOptionsDto } from '../../utils/pagination/page-options.dto';
-import { GetRequestUserId } from '../../common/decorators/get-request-user-id.decorator';
-import { Public } from '../../common/decorators/public.decorator';
+import { CreateTaskDto, UpdateTaskDto } from './dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -28,7 +35,7 @@ export class TasksController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ValidationPipe)
-  create(@Body() createTaskDto: CreateTaskDto) {
+  create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
     return this.tasksService.create(createTaskDto);
   }
 
@@ -38,29 +45,35 @@ export class TasksController {
   findAll(
     @GetRequestUserId() userId: string,
     @Query() pageOptionsDto: PageOptionsDto,
-    @Query('search') search: string,
+    @Query(SEARCH_QUERY) search: string,
     @Query('isRecommendation') isRecommendation: boolean,
-  ) {
+  ): Promise<PageDto<Task>> {
     return this.tasksService.findAll(
       pageOptionsDto,
-      search ?? '',
+      search ?? NO_SEARCH,
       userId,
-      Boolean(isRecommendation),
+      isRecommendation ?? false,
     );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  findOne(@Param(ID_PROPERTY) id: string): Promise<Task> {
     return this.tasksService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  @Patch(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  update(
+    @Param(ID_PROPERTY) id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<Task> {
     return this.tasksService.update(id, updateTaskDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(ID_PARAM)
+  @HttpCode(HttpStatus.OK)
+  remove(@Param(ID_PROPERTY) id: string): Promise<DeleteResult> {
     return this.tasksService.remove(id);
   }
 }

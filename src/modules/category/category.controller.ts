@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
-import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
+import { PageOptionsDto, PageDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
@@ -22,11 +22,9 @@ import {
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { Category } from 'src/entities';
-import { PageDto } from 'src/utils/pagination/page.dto';
 
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 
 @Controller('category')
 export class CategoryController {

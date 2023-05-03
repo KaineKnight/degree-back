@@ -1,27 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { RelatedTaskData } from './../../../dist/src/modules/tasks/types/relatedTaskData.type.d';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { DeleteResult, Like, Repository } from 'typeorm';
 
-import { Task, User } from '../../entities';
-import { PageOptionsDto } from '../../utils/pagination/page-options.dto';
-import { PageMetaDto } from '../../utils/pagination/page-meta.dto';
-import { PageDto } from '../../utils/pagination/page.dto';
+import { Brand, Category, Problem, Task } from '../../entities';
+import { PageOptionsDto, PageMetaDto, PageDto } from '../../utils/pagination';
 
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto, UpdateTaskDto } from './dto';
 import { TasksHelperService } from './tasks-helper.service';
+import { TASK_NOT_FOUND } from './constants';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly taskHelper: TasksHelperService,
+    @InjectRepository(Brand)
+    private readonly brandRepository: Repository<Brand>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Problem)
+    private readonly problemRepository: Repository<Problem>,
   ) {}
-  async create(createTaskDto: CreateTaskDto) {
-    return createTaskDto;
+
+  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+    return;
   }
 
   async findAll(
@@ -29,7 +33,7 @@ export class TasksService {
     search: string,
     userId: string,
     isRecommendation: boolean,
-  ) {
+  ): Promise<PageDto<Task>> {
     const { take, skip, order } = pageOptionsDto;
     // regular request to database
     if (!userId && !isRecommendation) {
@@ -60,24 +64,59 @@ export class TasksService {
     const itemCount = recommendedTasks.length;
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    const pageStartProduct = (pageMetaDto.page - 1) * pageMetaDto.take;
-    const pageStart = pageStartProduct > 0 ? pageStartProduct : 0;
-    const pageEnd = pageStart + pageOptionsDto.take;
-    const data = recommendedTasks.slice(pageStart, pageEnd);
+    const data = this.taskHelper.sliceTasksPage(
+      recommendedTasks,
+      pageMetaDto,
+      pageOptionsDto,
+    );
 
     // 7. return data
     return new PageDto(data, pageMetaDto);
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} task`;
+  async findOne(id: string): Promise<Task> {
+    const task: Task = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['brand', 'category', 'problem'],
+    });
+    if (!task) throw new NotFoundException(TASK_NOT_FOUND);
+    return task;
   }
 
-  update(id: string, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const task: Task = await this.taskRepository.findOne({
+      where: { id },
+      relations: ['brand', 'category', 'problem'],
+    });
+    const relatedData: RelatedTaskData = {};
+    if (updateTaskDto.brandId) {
+      const brand: Brand = await this.brandRepository.findOneBy({
+        id: updateTaskDto.brandId,
+      });
+      relatedData.brand = brand;
+    }
+    if (updateTaskDto.categoryId) {
+      const category: Category = await this.categoryRepository.findOneBy({
+        id: updateTaskDto.categoryId,
+      });
+      relatedData.category = category;
+    }
+    if (updateTaskDto.problemTitle) {
+      const problem: Problem = await this.problemRepository.findOneBy({
+        title: updateTaskDto.problemTitle,
+      });
+      relatedData.problem = problem;
+    }
+    await this.taskRepository.update(task, {
+      ...updateTaskDto,
+      ...relatedData,
+    });
+    return task;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} task`;
+  async remove(id: string): Promise<DeleteResult> {
+    const task: Task = await this.taskRepository.findOneBy({ id });
+    if (!task) throw new NotFoundException(TASK_NOT_FOUND);
+    return await this.taskRepository.delete(task);
   }
 }

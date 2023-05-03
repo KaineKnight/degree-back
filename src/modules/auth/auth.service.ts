@@ -55,13 +55,8 @@ export class AuthService {
 
   async logout(userId) {
     await this.userRepository.update(
-      {
-        id: userId,
-        hashedRt: Not(IsNull()),
-      },
-      {
-        hashedRt: null,
-      },
+      { id: userId, hashedRt: Not(IsNull()) },
+      { hashedRt: null },
     );
   }
 

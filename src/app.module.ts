@@ -7,33 +7,28 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { typeOrmConfigAsync } from './config';
-import { AuthModule } from './modules/auth/auth.module';
 
-import UsersModule from './modules/users';
-import TasksModule from './modules/tasks';
 import { AtGuard } from './common/guards';
-import { BrandModule } from './modules/brand/brand.module';
-import { CategoryModule } from './modules/category/category.module';
-import { ProblemModule } from './modules/problem/problem.module';
-
+import {
+  AuthModule,
+  BrandModule,
+  CategoryModule,
+  ProblemModule,
+  TasksModule,
+  UsersModule,
+} from './modules';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
-    TasksModule,
-    UsersModule,
     AuthModule,
     BrandModule,
     CategoryModule,
     ProblemModule,
+    TasksModule,
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AtGuard,
-    },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: AtGuard }],
 })
 export class AppModule {}

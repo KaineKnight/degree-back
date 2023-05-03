@@ -15,8 +15,7 @@ import {
 import { DeleteResult } from 'typeorm';
 
 import { Problem } from 'src/entities';
-import { PageDto } from 'src/utils/pagination/page.dto';
-import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
+import { PageDto, PageOptionsDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
@@ -25,8 +24,7 @@ import {
 } from 'src/utils/constants';
 
 import { ProblemService } from './problem.service';
-import { CreateProblemDto } from './dto/create-problem.dto';
-import { UpdateProblemDto } from './dto/update-problem.dto';
+import { CreateProblemDto, UpdateProblemDto } from './dto';
 
 @Controller('problem')
 export class ProblemController {
@@ -35,7 +33,7 @@ export class ProblemController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ValidationPipe)
-  create(@Body() createProblemDto: CreateProblemDto) {
+  create(@Body() createProblemDto: CreateProblemDto): Promise<Problem> {
     return this.problemService.create(createProblemDto);
   }
 
@@ -68,10 +66,5 @@ export class ProblemController {
   @HttpCode(HttpStatus.OK)
   remove(@Param(ID_PROPERTY) id: string): Promise<DeleteResult> {
     return this.problemService.remove(id);
-  }
-
-  @Get('findByNameOrCreate')
-  findByNameOrCreate() {
-    return;
   }
 }

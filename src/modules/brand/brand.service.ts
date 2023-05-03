@@ -7,12 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
 import { Brand } from 'src/entities';
-import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
-import { PageDto } from 'src/utils/pagination/page.dto';
-import { PageMetaDto } from 'src/utils/pagination/page-meta.dto';
+import { PageOptionsDto, PageDto, PageMetaDto } from 'src/utils/pagination';
 
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
+import { CreateBrandDto, UpdateBrandDto } from './dto';
 import { BRAND_ALREADY_EXISTS, BRAND_NOT_FOUND } from './constants';
 
 @Injectable()

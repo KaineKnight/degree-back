@@ -7,12 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
 import { Problem } from 'src/entities';
-import { PageOptionsDto } from 'src/utils/pagination/page-options.dto';
-import { PageMetaDto } from 'src/utils/pagination/page-meta.dto';
-import { PageDto } from 'src/utils/pagination/page.dto';
+import { PageOptionsDto, PageMetaDto, PageDto } from 'src/utils/pagination';
 
-import { CreateProblemDto } from './dto/create-problem.dto';
-import { UpdateProblemDto } from './dto/update-problem.dto';
+import { CreateProblemDto, UpdateProblemDto } from './dto';
 import { PROBLEM_ALREADY_EXISTS, PROBLEM_NOT_FOUND } from './constants';
 
 @Injectable()
