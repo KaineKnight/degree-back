@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Task } from './task.entity';
+import { Model } from './model.entity';
 
 @Entity('brands')
 export class Brand {
@@ -13,6 +13,13 @@ export class Brand {
   @Column({ default: 0 })
   weight: number;
 
-  @OneToMany(() => Task, (task) => task.brand)
-  tasks: Task[];
+  @OneToMany(() => Model, (model) => model.brand)
+  models: Model[];
 }
+/*
+1. choose category: mobile, tablet etc...
+2. choose brand: Apple, Nvidia, Microsoft etc...
+3. choose model: iPhone 5, MiBand 7,
+4. choose problem: cracked screen, bad battery
+5. describe your problem
+*/

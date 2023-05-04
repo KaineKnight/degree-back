@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Task } from './task.entity';
+import { Model } from './model.entity';
 
 @Entity('categories')
 export class Category {
@@ -13,6 +13,6 @@ export class Category {
   @Column({ default: 0 })
   weight: number;
 
-  @OneToMany(() => Task, (task) => task.category)
-  tasks: Task[];
+  @OneToMany(() => Model, (model) => model.category)
+  models: Model[];
 }

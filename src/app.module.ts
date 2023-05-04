@@ -5,28 +5,33 @@ import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
 import { typeOrmConfigAsync } from './config';
-
 import { AtGuard } from './common/guards';
 import {
   AuthModule,
-  BrandModule,
-  CategoryModule,
-  ProblemModule,
+  BrandsModule,
+  CategoriesModule,
+  ProblemsModule,
   TasksModule,
   UsersModule,
+  RolesModule,
+  ModelsModule,
+  StatusesModule,
 } from './modules';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     AuthModule,
-    BrandModule,
-    CategoryModule,
-    ProblemModule,
+    BrandsModule,
+    CategoriesModule,
+    ProblemsModule,
     TasksModule,
     UsersModule,
+    RolesModule,
+    ModelsModule,
+    StatusesModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AtGuard }],

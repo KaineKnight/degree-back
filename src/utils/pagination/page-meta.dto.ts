@@ -12,7 +12,7 @@ export class PageMetaDto {
 
   constructor({ pageOptionsDto, itemCount }: PageMetaDtoParameters) {
     this.page = pageOptionsDto.page ?? 1;
-    this.take = pageOptionsDto.take ?? 10;
+    this.take = pageOptionsDto.take ?? 50;
     this.itemCount = itemCount;
     this.pageCount = Math.ceil(this.itemCount / this.take);
     this.hasPreviousPage = this.page > 1;

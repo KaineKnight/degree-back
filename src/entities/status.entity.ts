@@ -6,7 +6,7 @@ export class Status {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   title: string;
 
   @OneToMany(() => Task, (task) => task.status)

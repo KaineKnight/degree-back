@@ -1,6 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { Task } from './task.entity';
+import { Model } from './model.entity';
+import { Brand } from './brand.entity';
+import { Category } from './category.entity';
 
 @Entity('problems')
 export class Problem {
@@ -24,4 +33,7 @@ export class Problem {
 
   @OneToMany(() => Task, (task) => task.problem)
   tasks: Task[];
+
+  @ManyToOne(() => Model, (model) => model.problems)
+  model: Model;
 }

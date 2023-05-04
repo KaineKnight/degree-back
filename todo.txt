@@ -1,0 +1,19 @@
+MUST USE DIAGRAM TO REFACTOR AND CREATE!!
+
++ roles module
++ statuses module
+- model module
+- user  sign up default as userRole
++ rename single to multiple
+- revise:
+    +brands
+  categories
+  models
+  problems
+    +roles
+    +statuses
+  tasks
+  users
+
+- if everything works try to create filters 
+  instead of conditional error

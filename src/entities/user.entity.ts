@@ -5,12 +5,15 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TaskUser } from './task-user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { TaskUser } from './task-user.entity';
+import { Role } from './role.entity';
 
 @Entity('users')
 export class User {
@@ -27,9 +30,13 @@ export class User {
   @Column()
   password: string;
 
-  @ApiProperty({ example: 'John', description: 'User Name'})
+  @ApiProperty({ example: 'John', description: 'User First Name'})
   @Column()
-  name: string;
+  firstName: string;
+
+  @ApiProperty({ example: 'Doe', description: 'User Last Name'})
+  @Column()
+  lastName: string;
 
   @ApiProperty({ example: 'https://host.com/img.jpg', description: 'User Avatar'})
   @Column({ nullable: true })
@@ -59,4 +66,7 @@ export class User {
   @ApiProperty({ example: '[]', description: 'Tasks related table'})
   @OneToMany(() => TaskUser, (tasks) => tasks.user)
   tasks: TaskUser[];
+
+  @ManyToOne(() => Role, (role) => role.users)
+  role: Role;
 }
