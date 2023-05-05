@@ -1,13 +1,17 @@
-import { RelatedModelData } from './types/related-model-data.type';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Like, Repository } from 'typeorm';
 
-import { Brand, Model } from 'src/entities';
-import { PageDto, PageOptionsDto } from 'src/utils/pagination';
+import { Brand, Category, Model } from 'src/entities';
+import { PageDto, PageMetaDto, PageOptionsDto } from 'src/utils/pagination';
 
 import { CreateModelDto, UpdateModelDto } from './dto';
-import { MODEL_ALREADY_EXIST } from './constants';
+import { MODEL_ALREADY_EXIST, MODEL_NOT_FOUND } from './constants';
+import { RelatedModelData } from './types';
 
 @Injectable()
 export class ModelsService {
@@ -16,6 +20,8 @@ export class ModelsService {
     private readonly modelRepository: Repository<Model>,
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async create(createModelDto: CreateModelDto): Promise<Model> {
@@ -23,22 +29,22 @@ export class ModelsService {
       title: createModelDto.title,
     });
     if (foundModel) throw new BadRequestException(MODEL_ALREADY_EXIST);
-    const relatedData: RelatedModelData = {};
-    if (createModelDto.brandTitle) {
-      const brand = await this.brandRepository.findOneBy({
+
+    const brand: Brand =
+      createModelDto.brandTitle &&
+      (await this.brandRepository.findOneBy({
         title: createModelDto.brandTitle,
-      });
-      if (brand) relatedData.brand = brand;
-    }
-    if (createModelDto.categoryTitle) {
-      const category = await this.brandRepository.findOneBy({
+      }));
+    const category: Category =
+      createModelDto.categoryTitle &&
+      (await this.categoryRepository.findOneBy({
         title: createModelDto.categoryTitle,
-      });
-      if (category) relatedData.category = category;
-    }
+      }));
+
     const model: Model = await this.modelRepository.save({
       ...createModelDto,
-      ...relatedData,
+      brand,
+      category,
     });
     return model;
   }
@@ -47,18 +53,62 @@ export class ModelsService {
     pageOptionsDto: PageOptionsDto,
     search: string,
   ): Promise<PageDto<Model>> {
-    return `This action returns all models`;
+    const { order, skip, take } = pageOptionsDto;
+    const [data, itemCount] = await this.modelRepository.findAndCount({
+      where: { title: Like(`%${search}%`) },
+      relations: ['brand', 'category'],
+      order: { title: order },
+      skip,
+      take,
+    });
+    const meta = new PageMetaDto({ pageOptionsDto, itemCount });
+    return new PageDto(data, meta);
   }
 
   async findOne(id: string): Promise<Model> {
-    return `This action returns a #${id} model`;
+    const model: Model = await this.modelRepository.findOne({
+      where: { id },
+      relations: ['brand', 'category'],
+    });
+    if (!model) throw new NotFoundException(MODEL_NOT_FOUND);
+    return model;
   }
 
   async update(id: string, updateModelDto: UpdateModelDto): Promise<Model> {
-    return `This action updates a #${id} model`;
+    const model: Model = await this.findOne(id);
+
+    const isBrandUpdating: boolean =
+      updateModelDto.brandTitle &&
+      updateModelDto.brandTitle !== model.brand.title;
+    const isCategoryUpdating: boolean =
+      updateModelDto.categoryTitle &&
+      updateModelDto.categoryTitle !== model.category.title;
+
+    const brand: Brand =
+      isBrandUpdating &&
+      (await this.brandRepository.findOneBy({
+        title: updateModelDto.brandTitle,
+      }));
+    const category: Category =
+      isCategoryUpdating &&
+      (await this.categoryRepository.findOneBy({
+        title: updateModelDto.categoryTitle,
+      }));
+
+    const relatedData: RelatedModelData = {};
+    if (brand) relatedData.brand = brand;
+    if (category) relatedData.category = category;
+
+    await this.modelRepository.update(model, {
+      ...updateModelDto,
+      ...relatedData,
+    });
+    return model;
   }
 
   async remove(id: string): Promise<DeleteResult> {
-    return `This action removes a #${id} model`;
+    const model: Model = await this.modelRepository.findOneBy({ id });
+    if (!model) throw new NotFoundException(MODEL_NOT_FOUND);
+    return await this.modelRepository.delete(model);
   }
 }

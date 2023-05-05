@@ -5,7 +5,7 @@ import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { Status } from 'src/entities';
 import { PageOptionsDto } from 'src/utils/pagination';
-import { ID_PARAM, ID_PROPERTY, NO_SEARCH, SEARCH_QUERY } from 'src/utils/constants';
+import { ID_PARAM, ID_PROPERTY, EMPTY_STRING, SEARCH_QUERY } from 'src/utils/constants';
 import { DeleteResult } from 'typeorm';
 
 @Controller('statuses')
@@ -25,7 +25,7 @@ export class StatusesController {
     @Query() pageOptionsDto: PageOptionsDto,
     @Query(SEARCH_QUERY) search: string,
   ): Promise<PageDto<Status>> {
-    return this.statusesService.findAll(pageOptionsDto, search ?? NO_SEARCH);
+    return this.statusesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
   }
 
   @Get(ID_PARAM)

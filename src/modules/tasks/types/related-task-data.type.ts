@@ -1,7 +1,6 @@
-import { Brand, Category, Problem } from 'src/entities';
+import { Problem, Status } from 'src/entities';
 
 export type RelatedTaskData = {
-  brand?: Brand;
-  category?: Category;
   problem?: Problem;
+  status?: Status;
 };

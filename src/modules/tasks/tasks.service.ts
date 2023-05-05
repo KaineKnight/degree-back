@@ -1,4 +1,3 @@
-import { RelatedTaskData } from './../../../dist/src/modules/tasks/types/relatedTaskData.type.d';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
@@ -9,6 +8,7 @@ import { PageOptionsDto, PageMetaDto, PageDto } from '../../utils/pagination';
 import { CreateTaskDto, UpdateTaskDto } from './dto';
 import { TasksHelperService } from './tasks-helper.service';
 import { TASK_NOT_FOUND } from './constants';
+import { RelatedTaskData } from './types';
 
 @Injectable()
 export class TasksService {
@@ -25,7 +25,7 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    
+    return await this.taskRepository.findOneBy({ id: '1' });
   }
 
   async findAll(
@@ -33,45 +33,101 @@ export class TasksService {
     search: string,
     userId: string,
     isRecommendation: boolean,
+    modelFilter: string,
+    brandFilter: string,
+    categoryFilter: string,
+    problemFilter: string,
+    statusFilter: string,
+    firstNameFilter: string,
+    lastNameFilter: string,
   ): Promise<PageDto<Task>> {
     const { take, skip, order } = pageOptionsDto;
-    // regular request to database
-    if (!userId && !isRecommendation) {
-      const [data, itemCount] = await this.taskRepository.findAndCount({
-        where: { title: Like(`%${search}%`) },
-        // relations: ['users'], // why???
-        order: { title: order },
-        take,
-        skip,
+
+    const queryBuilder = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.users', 'taskUser')
+      .leftJoinAndSelect('taskUser.user', 'user')
+      .leftJoinAndSelect('task.status', 'status')
+      .leftJoinAndSelect('task.problem', 'problem')
+      .leftJoinAndSelect('problem.model', 'model')
+      .leftJoinAndSelect('model.brand', 'brand')
+      .leftJoinAndSelect('model.category', 'category');
+
+    if (modelFilter)
+      queryBuilder.where('model.title IN (:models)', { models: [] });
+    if (brandFilter)
+      queryBuilder.andWhere('brand.title IN (:brands)', { brands: [] });
+    if (categoryFilter)
+      queryBuilder.andWhere('category.title IN (:categories)', {
+        categories: [],
       });
-      const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-      return new PageDto(data, pageMetaDto);
-    }
+    if (problemFilter)
+      queryBuilder.andWhere('problem.title IN (:problems)', { problems: [] });
+    if (statusFilter)
+      queryBuilder.andWhere('status.title IN (:statuses)', { statuses: [] });
+    if (firstNameFilter)
+      queryBuilder.andWhere('user.firstName IN (:firstNames)', {
+        firstNames: [],
+      });
+    if (lastNameFilter)
+      queryBuilder.andWhere('user.lastName IN (:lastNames)', {
+        lastNames: [],
+      });
 
-    // multi-criteria linear convolution algorithm
+    const [tasks, itemCount] = await queryBuilder.getManyAndCount();
 
-    // 2. get all tasks
-    const tasks = await this.taskRepository.find({
-      where: { title: Like(`%${search}%`), isCompleted: false },
-      relations: ['brand', 'category', 'problem'],
-    });
 
-    const recommendedTasks = await this.taskHelper.recommendTasks(
-      tasks,
-      userId,
-    );
-    // 6. slice elements according to pagination
-    const itemCount = recommendedTasks.length;
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    const data = this.taskHelper.sliceTasksPage(
-      recommendedTasks,
-      pageMetaDto,
-      pageOptionsDto,
-    );
 
-    // 7. return data
-    return new PageDto(data, pageMetaDto);
+
+
+
+
+
+    // const relationsArray = [
+    //   'users', // userTask to check whether task is occupied
+    //   'status',
+    //   'problem',
+    //   'problem.model',
+    //   'problem.model.brand',
+    //   'problem.model.category',
+    // ];
+    // // regular request to database
+    // if (!userId && !isRecommendation) {
+    //   const [data, itemCount] = await this.taskRepository.findAndCount({
+    //     where: { title: Like(`%${search}%`) },
+    //     relations: relationsArray,
+    //     order: { title: order },
+    //     take,
+    //     skip,
+    //   });
+    //   const meta = new PageMetaDto({ itemCount, pageOptionsDto });
+    //   return new PageDto(data, meta);
+    // }
+
+    // // multi-criteria linear convolution algorithm
+
+    // // 2. get all tasks
+    // const [tasks, itemCount] = await this.taskRepository.findAndCount({
+    //   where: { title: Like(`%${search}%`), isCompleted: false },
+    //   relations: relationsArray,
+    // });
+
+    // const recommendedTasks = await this.taskHelper.recommendTasks(
+    //   tasks,
+    //   userId,
+    // );
+    // // 6. slice elements according to pagination
+    // const meta = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    // const data = this.taskHelper.sliceTasksPage(
+    //   recommendedTasks,
+    //   meta,
+    //   pageOptionsDto,
+    // );
+
+    // // 7. return data
+    // return new PageDto(data, meta);
   }
 
   async findOne(id: string): Promise<Task> {

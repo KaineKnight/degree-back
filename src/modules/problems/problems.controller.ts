@@ -19,7 +19,7 @@ import { PageDto, PageOptionsDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
-  NO_SEARCH,
+  EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
 
@@ -43,7 +43,7 @@ export class ProblemsController {
     @Query() pageOptionsDto: PageOptionsDto,
     @Query(SEARCH_QUERY) search: string,
   ): Promise<PageDto<Problem>> {
-    return this.problemsService.findAll(pageOptionsDto, search ?? NO_SEARCH);
+    return this.problemsService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
   }
 
   @Get(ID_PARAM)

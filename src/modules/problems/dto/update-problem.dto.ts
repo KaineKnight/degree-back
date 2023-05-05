@@ -5,17 +5,20 @@ import { IsOptional } from 'class-validator';
 
 export class UpdateProblemDto extends PartialType(CreateProblemDto) {
   @IsOptional()
-  title: string;
+  title?: string;
 
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsOptional()
-  time: number;
+  time?: number;
 
   @IsOptional()
-  price: number;
+  price?: number;
 
   @IsOptional()
-  commonnessWeight: number;
+  commonnessWeight?: number;
+
+  @IsOptional()
+  modelTitle?: string;
 }

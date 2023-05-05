@@ -5,14 +5,17 @@ export class CreateProblemDto {
   title: string;
 
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsOptional()
-  time: number;
+  time?: number;
 
   @IsOptional()
-  price: number;
+  price?: number;
 
   @IsOptional()
-  commonnessWeight: number;
+  commonnessWeight?: number;
+
+  @IsNotEmpty()
+  modelTitle: string;
 }

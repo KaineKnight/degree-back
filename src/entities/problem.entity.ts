@@ -8,24 +8,22 @@ import {
 
 import { Task } from './task.entity';
 import { Model } from './model.entity';
-import { Brand } from './brand.entity';
-import { Category } from './category.entity';
 
 @Entity('problems')
 export class Problem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true })
+  @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column({ nullable: true }) // hours to complete
   time: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true }) // rubles
   price: number;
 
   @Column({ default: 0 })

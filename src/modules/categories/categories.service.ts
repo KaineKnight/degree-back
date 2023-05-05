@@ -41,8 +41,8 @@ export class CategoriesService {
       take,
       skip,
     });
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, pageMetaDto);
+    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
+    return new PageDto(data, meta);
   }
 
   async findOne(id: string): Promise<Category> {

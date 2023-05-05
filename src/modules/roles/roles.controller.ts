@@ -17,7 +17,7 @@ import { DeleteResult } from 'typeorm';
 import {
   ID_PARAM,
   ID_PROPERTY,
-  NO_SEARCH,
+  EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { PageDto, PageOptionsDto } from 'src/utils/pagination';
@@ -43,7 +43,7 @@ export class RolesController {
     @Query() pageOptionsDto: PageOptionsDto,
     @Query(SEARCH_QUERY) search: string,
   ): Promise<PageDto<Role>> {
-    return this.rolesService.findAll(pageOptionsDto, search ?? NO_SEARCH);
+    return this.rolesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
   }
 
   @Get(ID_PARAM)

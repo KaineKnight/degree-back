@@ -1,4 +1,3 @@
-import { maxMinDiff } from './../../../dist/.history/src/modules/tasks/types/maxMinDiff.type_20230503113950.d';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
@@ -13,6 +12,7 @@ import {
   CriterionsWeighs,
   Weighs,
 } from './types';
+import { PageMetaDto, PageOptionsDto } from 'src/utils/pagination';
 
 @Injectable()
 export class TasksHelperService {
@@ -27,7 +27,7 @@ export class TasksHelperService {
     const minMax: MinMax = {
       maxPrice: 0,
       minPrice: 1,
-      maxTime: 1, // nega time
+      maxTime: 1, // negative time
       minTime: 0,
       maxBrand: 0,
       minBrand: 1,
@@ -39,7 +39,7 @@ export class TasksHelperService {
 
     tasks.forEach((task) => {
       const price = task?.problem?.price ?? 0;
-      const time = -task?.problem?.time ?? 0; // nega time
+      const time = -task?.problem?.time ?? 0; // negative time
       const brand = task?.brand?.weight ?? 0;
       const category = task?.category?.weight ?? 0;
       const commonness = task?.problem?.commonnessWeight ?? 0;
@@ -47,7 +47,7 @@ export class TasksHelperService {
       if (price > minMax.maxPrice) minMax.maxPrice = price;
       if (price < minMax.minPrice) minMax.minPrice = price;
 
-      // time in minutes
+      // time in hours
       if (time > minMax.maxTime) minMax.maxTime = time;
       if (time < minMax.minTime) minMax.minTime = time;
 
@@ -182,8 +182,12 @@ export class TasksHelperService {
     return tasks;
   }
 
-  sliceTasksPage(tasks, pageMetaDto, pageOptionsDto) {
-    const pageStartProduct = (pageMetaDto.page - 1) * pageMetaDto.take;
+  sliceTasksPage(
+    tasks: any,
+    meta: PageMetaDto,
+    pageOptionsDto: PageOptionsDto,
+  ) {
+    const pageStartProduct = (meta.page - 1) * meta.take;
     const pageStart = pageStartProduct > 0 ? pageStartProduct : 0;
     const pageEnd = pageStart + pageOptionsDto.take;
     const data = tasks.slice(pageStart, pageEnd);

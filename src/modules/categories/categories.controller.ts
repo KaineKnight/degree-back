@@ -18,7 +18,7 @@ import { PageOptionsDto, PageDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
-  NO_SEARCH,
+  EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { Category } from 'src/entities';
@@ -43,7 +43,7 @@ export class CategoriesController {
     @Query() pageOptionsDto: PageOptionsDto,
     @Query(SEARCH_QUERY) search: string,
   ): Promise<PageDto<Category>> {
-    return this.categoriesService.findAll(pageOptionsDto, search ?? NO_SEARCH);
+    return this.categoriesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
   }
 
   @Get(ID_PARAM)

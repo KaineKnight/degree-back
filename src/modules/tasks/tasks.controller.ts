@@ -19,7 +19,7 @@ import { GetRequestUserId, Public } from '../../common/decorators';
 import {
   ID_PARAM,
   ID_PROPERTY,
-  NO_SEARCH,
+  EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { Task } from 'src/entities';
@@ -47,10 +47,14 @@ export class TasksController {
     @Query() pageOptionsDto: PageOptionsDto,
     @Query(SEARCH_QUERY) search: string,
     @Query('isRecommendation') isRecommendation: boolean,
+    @Query('brand') brand: string,
+    @Query('category') category: string,
+    @Query('model') model: string,
+    @Query('problem') problem: string,
   ): Promise<PageDto<Task>> {
     return this.tasksService.findAll(
       pageOptionsDto,
-      search ?? NO_SEARCH,
+      search ?? EMPTY_STRING,
       userId,
       isRecommendation ?? false,
     );
