@@ -64,7 +64,7 @@ export class User {
   deletedAt: Date;
 
   @ApiProperty({ example: '[]', description: 'Tasks related table'})
-  @OneToMany(() => TaskUser, (tasks) => tasks.user)
+  @OneToMany(() => TaskUser, (tasks) => tasks.user, { cascade: true })
   tasks: TaskUser[];
 
   @ManyToOne(() => Role, (role) => role.users)

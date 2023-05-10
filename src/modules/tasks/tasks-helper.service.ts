@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Task, User } from 'src/entities';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Task, TaskUser, User } from 'src/entities';
 import { Criterions } from 'src/utils/criterions.enum';
+import { PageMetaDto, PageOptionsDto } from 'src/utils/pagination';
+import { USER_NOT_FOUND } from 'src/utils/constants';
 
 import {
   MinMax,
@@ -12,7 +18,7 @@ import {
   CriterionsWeighs,
   Weighs,
 } from './types';
-import { PageMetaDto, PageOptionsDto } from 'src/utils/pagination';
+import { TASK_NOT_FOUND } from './constants';
 
 @Injectable()
 export class TasksHelperService {
@@ -21,6 +27,8 @@ export class TasksHelperService {
     private readonly taskRepository: Repository<Task>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(TaskUser)
+    private readonly taskUserRepository: Repository<TaskUser>,
   ) {}
 
   computeMinMax(tasks): MinMax {
@@ -192,5 +200,24 @@ export class TasksHelperService {
     const pageEnd = pageStart + pageOptionsDto.take;
     const data = tasks.slice(pageStart, pageEnd);
     return data;
+  }
+
+  async getUserAndTaskUser(
+    userId: string,
+    taskId: string,
+  ): Promise<[User, TaskUser]> {
+    const user: User = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['tasks', 'tasks.task'],
+    });
+    if (!user) throw new NotFoundException(USER_NOT_FOUND);
+    const task: Task = await this.taskRepository.findOneBy({ id: taskId });
+    if (!task) throw new NotFoundException(TASK_NOT_FOUND);
+    if (!task.isCompleted) throw new BadRequestException('Task already in use');
+    const userTask: TaskUser = await this.taskUserRepository.findOneBy({
+      taskId,
+      userId,
+    });
+    return [user, userTask];
   }
 }

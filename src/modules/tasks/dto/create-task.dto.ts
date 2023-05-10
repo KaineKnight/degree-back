@@ -24,10 +24,7 @@ export class CreateTaskDto {
   contactEmail: string;
 
   @IsNotEmpty()
-  categoryId: string;
-
-  @IsNotEmpty()
-  brandId: string;
+  modelId: string;
 
   @IsNotEmpty()
   problemTitle: string;

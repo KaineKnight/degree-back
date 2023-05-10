@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
 import { Category } from 'src/entities';
-import { PageMetaDto, PageDto, PageOptionsDto } from 'src/utils/pagination';
+import { ASC_ORDER } from 'src/utils/constants';
 
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { CATEGORY_ALREADY_EXISTS, CATEGORY_NOT_FOUND } from './constants';
@@ -30,19 +30,12 @@ export class CategoriesService {
     return category;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-    search: string,
-  ): Promise<PageDto<Category>> {
-    const { take, skip, order } = pageOptionsDto;
-    const [data, itemCount] = await this.categoryRepository.findAndCount({
+  async findAll(search: string): Promise<Category[]> {
+    const categories: Category[] = await this.categoryRepository.find({
       where: { title: Like(`%${search}%`) },
-      order: { title: order },
-      take,
-      skip,
+      order: { title: ASC_ORDER },
     });
-    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, meta);
+    return categories;
   }
 
   async findOne(id: string): Promise<Category> {

@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
-import { PageDto, PageMetaDto, PageOptionsDto } from 'src/utils/pagination';
+import { ASC_ORDER } from 'src/utils/constants';
 import { Status } from 'src/entities';
 
 import { CreateStatusDto, UpdateStatusDto } from './dto';
@@ -28,19 +28,12 @@ export class StatusesService {
     return status;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-    search: string,
-  ): Promise<PageDto<Status>> {
-    const { take, skip, order } = pageOptionsDto;
-    const [data, itemCount] = await this.statusRepository.findAndCount({
+  async findAll(search: string): Promise<Status[]> {
+    const statuses: Status[] = await this.statusRepository.find({
       where: { title: Like(`%${search}%`) },
-      order: { title: order },
-      take,
-      skip,
+      order: { title: ASC_ORDER },
     });
-    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, meta);
+    return statuses;
   }
 
   async findOne(id: string): Promise<Status> {

@@ -25,6 +25,7 @@ import { Category } from 'src/entities';
 
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { Public } from 'src/common/decorators';
 
 @Controller('category')
 export class CategoriesController {
@@ -37,15 +38,14 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Category>> {
-    return this.categoriesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Category[]> {
+    return this.categoriesService.findAll(search ?? EMPTY_STRING);
   }
 
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Category> {

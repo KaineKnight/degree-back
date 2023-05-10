@@ -15,13 +15,13 @@ import {
 import { DeleteResult } from 'typeorm';
 
 import { Problem } from 'src/entities';
-import { PageDto, PageOptionsDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
   EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
+import { Public } from 'src/common/decorators';
 
 import { ProblemsService } from './problems.service';
 import { CreateProblemDto, UpdateProblemDto } from './dto';
@@ -37,15 +37,14 @@ export class ProblemsController {
     return this.problemsService.create(createProblemDto);
   }
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Problem>> {
-    return this.problemsService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Problem[]> {
+    return this.problemsService.findAll(search ?? EMPTY_STRING);
   }
 
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Problem> {

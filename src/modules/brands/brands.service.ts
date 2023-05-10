@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
 import { Brand } from 'src/entities';
-import { PageOptionsDto, PageDto, PageMetaDto } from 'src/utils/pagination';
+import { ASC_ORDER } from 'src/utils/constants';
 
 import { CreateBrandDto, UpdateBrandDto } from './dto';
 import { BRAND_ALREADY_EXISTS, BRAND_NOT_FOUND } from './constants';
@@ -28,19 +28,12 @@ export class BrandsService {
     return brand;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-    search: string,
-  ): Promise<PageDto<Brand>> {
-    const { take, skip, order } = pageOptionsDto;
-    const [data, itemCount] = await this.brandRepository.findAndCount({
+  async findAll(search: string): Promise<Brand[]> {
+    const brands: Brand[] = await this.brandRepository.find({
       where: { title: Like(`%${search}%`) },
-      order: { title: order },
-      take,
-      skip,
+      order: { title: ASC_ORDER },
     });
-    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, meta);
+    return brands;
   }
 
   async findOne(id: string): Promise<Brand> {

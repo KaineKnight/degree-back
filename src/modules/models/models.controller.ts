@@ -20,7 +20,7 @@ import {
   EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
-import { PageDto, PageOptionsDto } from 'src/utils/pagination';
+import { Public } from 'src/common/decorators';
 import { Model } from 'src/entities';
 
 import { ModelsService } from './models.service';
@@ -37,15 +37,14 @@ export class ModelsController {
     return this.modelsService.create(createModelDto);
   }
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Model>> {
-    return this.modelsService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Model[]> {
+    return this.modelsService.findAll(search ?? EMPTY_STRING);
   }
 
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Model> {

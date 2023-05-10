@@ -5,8 +5,8 @@ MUST USE DIAGRAM TO REFACTOR AND CREATE!!
 + model module
 + rename single to multiple
 - user  sign up default as userRole
-- when task created return uuid
-- user sign to task
++ when task created return uuid
++ user sign to task
 - user reject task 
 - revise:
     +brands
@@ -15,8 +15,8 @@ MUST USE DIAGRAM TO REFACTOR AND CREATE!!
     +problems
     +roles
     +statuses
-  tasks
-  users
+    +tasks
+    +users
 
 - if everything works try to create filters 
   instead of conditional error

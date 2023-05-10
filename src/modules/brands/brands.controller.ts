@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
-import { PageOptionsDto, PageDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
@@ -25,6 +24,7 @@ import { Brand } from 'src/entities';
 
 import { BrandsService } from './brands.service';
 import { CreateBrandDto, UpdateBrandDto } from './dto';
+import { Public } from 'src/common/decorators';
 
 @Controller('brand')
 export class BrandsController {
@@ -37,15 +37,14 @@ export class BrandsController {
     return this.brandsService.create(createBrandDto);
   }
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Brand>> {
-    return this.brandsService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Brand[]> {
+    return this.brandsService.findAll(search ?? EMPTY_STRING);
   }
 
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Brand> {

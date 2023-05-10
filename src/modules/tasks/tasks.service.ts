@@ -1,13 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Like, Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
-import { Brand, Category, Problem, Task } from '../../entities';
+import { Problem, Status, Task, TaskUser, User } from '../../entities';
 import { PageOptionsDto, PageMetaDto, PageDto } from '../../utils/pagination';
+import { USER_NOT_FOUND } from 'src/utils/constants';
 
-import { CreateTaskDto, UpdateTaskDto } from './dto';
+import { CreateTaskDto, UpdateTaskDto, TaskFilterDto } from './dto';
 import { TasksHelperService } from './tasks-helper.service';
-import { TASK_NOT_FOUND } from './constants';
+import { TASK_NOT_FOUND, relations } from './constants';
 import { RelatedTaskData } from './types';
 
 @Injectable()
@@ -16,32 +21,50 @@ export class TasksService {
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
     private readonly taskHelper: TasksHelperService,
-    @InjectRepository(Brand)
-    private readonly brandRepository: Repository<Brand>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Problem)
     private readonly problemRepository: Repository<Problem>,
+    @InjectRepository(Status)
+    private readonly statusRepository: Repository<Status>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(TaskUser)
+    private readonly taskUserRepository: Repository<TaskUser>,
   ) {}
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    return await this.taskRepository.findOneBy({ id: '1' });
+    const problem = await this.problemRepository
+      .createQueryBuilder('problem')
+      .innerJoinAndSelect('problem.model', 'model')
+      .where('model.id = :id', { id: createTaskDto.modelId })
+      .andWhere('problem.title = : title', {
+        title: createTaskDto.problemTitle,
+      })
+      .getOne();
+    if (!problem) throw new BadRequestException('Problem does not exist');
+    const task = await this.taskRepository.save({
+      ...createTaskDto,
+      problem,
+    });
+    return task;
   }
 
   async findAll(
     pageOptionsDto: PageOptionsDto,
-    search: string,
+    taskFilterDto: TaskFilterDto,
     userId: string,
-    isRecommendation: boolean,
-    modelFilter: string,
-    brandFilter: string,
-    categoryFilter: string,
-    problemFilter: string,
-    statusFilter: string,
-    firstNameFilter: string,
-    lastNameFilter: string,
   ): Promise<PageDto<Task>> {
     const { take, skip, order } = pageOptionsDto;
+    const {
+      search,
+      brands,
+      models,
+      categories,
+      problems,
+      statuses,
+      firstNames,
+      lastNames,
+      hasRecommendation,
+    } = taskFilterDto;
 
     const queryBuilder = this.taskRepository
       .createQueryBuilder('task')
@@ -53,116 +76,117 @@ export class TasksService {
       .leftJoinAndSelect('model.brand', 'brand')
       .leftJoinAndSelect('model.category', 'category');
 
-    if (modelFilter)
-      queryBuilder.where('model.title IN (:models)', { models: [] });
-    if (brandFilter)
-      queryBuilder.andWhere('brand.title IN (:brands)', { brands: [] });
-    if (categoryFilter)
+    if (search)
+      queryBuilder.where('task.title ILIKE :search', {
+        search: `%${search}%`,
+      });
+    if (models)
+      queryBuilder.andWhere('model.title IN (:models)', {
+        models: models.split(' '),
+      });
+    if (brands)
+      queryBuilder.andWhere('brand.title IN (:brands)', {
+        brands: brands.split(' '),
+      });
+    if (categories)
       queryBuilder.andWhere('category.title IN (:categories)', {
-        categories: [],
+        categories: categories.split(' '),
       });
-    if (problemFilter)
-      queryBuilder.andWhere('problem.title IN (:problems)', { problems: [] });
-    if (statusFilter)
-      queryBuilder.andWhere('status.title IN (:statuses)', { statuses: [] });
-    if (firstNameFilter)
+    if (problems)
+      queryBuilder.andWhere('problem.title IN (:problems)', {
+        problems: problems.split(' '),
+      });
+    if (statuses)
+      queryBuilder.andWhere('status.title IN (:statuses)', {
+        statuses: statuses.split(' '),
+      });
+    if (firstNames)
       queryBuilder.andWhere('user.firstName IN (:firstNames)', {
-        firstNames: [],
+        firstNames: firstNames.split(' '),
       });
-    if (lastNameFilter)
+    if (lastNames)
       queryBuilder.andWhere('user.lastName IN (:lastNames)', {
-        lastNames: [],
+        lastNames: lastNames.split(' '),
       });
 
+    if (!userId || !hasRecommendation) {
+      const [data, itemCount] = await queryBuilder
+        .orderBy('task.createdAt', order)
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
+      const meta = new PageMetaDto({ itemCount, pageOptionsDto });
+      return new PageDto(data, meta);
+    }
+
+    // multi-criteria linear convolution algorithm
+
+    // 2. get all tasks
+    queryBuilder.andWhere('task.isCompleted = :isCompleted', {
+      isCompleted: false,
+    });
     const [tasks, itemCount] = await queryBuilder.getManyAndCount();
 
+    const recommendedTasks = await this.taskHelper.recommendTasks(
+      tasks,
+      userId,
+    );
 
+    // 6. slice elements according to pagination
+    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
+    const data = this.taskHelper.sliceTasksPage(
+      recommendedTasks,
+      meta,
+      pageOptionsDto,
+    );
 
-
-
-
-
-
-
-    // const relationsArray = [
-    //   'users', // userTask to check whether task is occupied
-    //   'status',
-    //   'problem',
-    //   'problem.model',
-    //   'problem.model.brand',
-    //   'problem.model.category',
-    // ];
-    // // regular request to database
-    // if (!userId && !isRecommendation) {
-    //   const [data, itemCount] = await this.taskRepository.findAndCount({
-    //     where: { title: Like(`%${search}%`) },
-    //     relations: relationsArray,
-    //     order: { title: order },
-    //     take,
-    //     skip,
-    //   });
-    //   const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    //   return new PageDto(data, meta);
-    // }
-
-    // // multi-criteria linear convolution algorithm
-
-    // // 2. get all tasks
-    // const [tasks, itemCount] = await this.taskRepository.findAndCount({
-    //   where: { title: Like(`%${search}%`), isCompleted: false },
-    //   relations: relationsArray,
-    // });
-
-    // const recommendedTasks = await this.taskHelper.recommendTasks(
-    //   tasks,
-    //   userId,
-    // );
-    // // 6. slice elements according to pagination
-    // const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-
-    // const data = this.taskHelper.sliceTasksPage(
-    //   recommendedTasks,
-    //   meta,
-    //   pageOptionsDto,
-    // );
-
-    // // 7. return data
-    // return new PageDto(data, meta);
+    // 7. return data
+    return new PageDto(data, meta);
   }
 
   async findOne(id: string): Promise<Task> {
     const task: Task = await this.taskRepository.findOne({
       where: { id },
-      relations: ['brand', 'category', 'problem'],
+      relations,
     });
     if (!task) throw new NotFoundException(TASK_NOT_FOUND);
     return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-    const task: Task = await this.taskRepository.findOne({
-      where: { id },
-      relations: ['brand', 'category', 'problem'],
-    });
+    const task: Task = await this.findOne(id);
+
+    const isProblemTitleUpdating: boolean =
+      updateTaskDto.problemTitle &&
+      updateTaskDto.problemTitle !== task.problem.title;
+    const isModelUpdating: boolean =
+      updateTaskDto.modelId && updateTaskDto.modelId !== task.problem.model.id;
+
+    const isProblemUpdating: boolean =
+      isProblemTitleUpdating || isModelUpdating;
+    const problem =
+      isProblemUpdating &&
+      (await this.problemRepository
+        .createQueryBuilder('problem')
+        .innerJoinAndSelect('problem.model', 'model')
+        .where('model.id = :id', { id: updateTaskDto.modelId })
+        .andWhere('problem.title = : title', {
+          title: updateTaskDto.problemTitle,
+        })
+        .getOne());
+
+    const isStatusUpdating: boolean =
+      updateTaskDto.statusId && updateTaskDto.statusId !== task.status.id;
+    const status: Status =
+      isStatusUpdating &&
+      (await this.statusRepository.findOneBy({
+        id: updateTaskDto.statusId,
+      }));
+
     const relatedData: RelatedTaskData = {};
-    if (updateTaskDto.brandId) {
-      const brand: Brand = await this.brandRepository.findOneBy({
-        id: updateTaskDto.brandId,
-      });
-      relatedData.brand = brand;
-    }
-    if (updateTaskDto.categoryId) {
-      const category: Category = await this.categoryRepository.findOneBy({
-        id: updateTaskDto.categoryId,
-      });
-      relatedData.category = category;
-    }
-    if (updateTaskDto.problemTitle) {
-      const problem: Problem = await this.problemRepository.findOneBy({
-        title: updateTaskDto.problemTitle,
-      });
-      relatedData.problem = problem;
-    }
+    if (problem) relatedData.problem = problem;
+    if (status) relatedData.status = status;
+
     await this.taskRepository.update(task, {
       ...updateTaskDto,
       ...relatedData,
@@ -174,5 +198,32 @@ export class TasksService {
     const task: Task = await this.taskRepository.findOneBy({ id });
     if (!task) throw new NotFoundException(TASK_NOT_FOUND);
     return await this.taskRepository.delete(task);
+  }
+
+  async acceptTaskByUser(userId: string, taskId: string): Promise<User> {
+    const [user, userTask] = await this.taskHelper.getUserAndTaskUser(
+      userId,
+      taskId,
+    );
+    if (userTask) await this.taskUserRepository.delete({ userId, taskId });
+    else await this.taskUserRepository.save({ userId, taskId });
+
+    return user;
+  }
+
+  async rejectTaskByUser(
+    userId: string,
+    taskId: string,
+    isRejected: boolean,
+  ): Promise<User> {
+    const [user, userTask] = await this.taskHelper.getUserAndTaskUser(
+      userId,
+      taskId,
+    );
+    await this.taskUserRepository.save({
+      ...userTask,
+      isRejected: isRejected,
+    });
+    return user;
   }
 }

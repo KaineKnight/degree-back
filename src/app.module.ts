@@ -17,6 +17,8 @@ import {
   RolesModule,
   ModelsModule,
   StatusesModule,
+  PlacemarksModule,
+  QuestionsModule,
 } from './modules';
 
 @Module({
@@ -32,6 +34,8 @@ import {
     RolesModule,
     ModelsModule,
     StatusesModule,
+    PlacemarksModule,
+    QuestionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AtGuard }],

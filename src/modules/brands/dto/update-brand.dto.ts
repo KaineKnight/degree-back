@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
 import { CreateBrandDto } from './create-brand.dto';

@@ -11,6 +11,7 @@ import { Role } from 'src/entities';
 
 import { CreateRoleDto, UpdateRoleDto } from './dto';
 import { ROLE_ALREADY_EXISTS, ROLE_NOT_FOUND } from './constants';
+import { ASC_ORDER } from 'src/utils/constants';
 
 @Injectable()
 export class RolesService {
@@ -28,19 +29,12 @@ export class RolesService {
     return role;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-    search: string,
-  ): Promise<PageDto<Role>> {
-    const { take, skip, order } = pageOptionsDto;
-    const [data, itemCount] = await this.roleRepository.findAndCount({
+  async findAll(search: string): Promise<Role[]> {
+    const roles: Role[] = await this.roleRepository.find({
       where: { title: Like(`%${search}%`) },
-      order: { title: order },
-      take,
-      skip,
+      order: { title: ASC_ORDER },
     });
-    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, meta);
+    return roles;
   }
 
   async findOne(id: string): Promise<Role> {

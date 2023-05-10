@@ -1,9 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { Task } from './task.entity';
@@ -32,6 +35,15 @@ export class Problem {
   @OneToMany(() => Task, (task) => task.problem)
   tasks: Task[];
 
-  @ManyToOne(() => Model, (model) => model.problems)
+  @ManyToOne(() => Model, (model) => model.problems, { eager: true })
   model: Model;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

@@ -1,12 +1,31 @@
-import { PageDto } from './../../utils/pagination/page.dto';
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UsePipes, ValidationPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  UsePipes,
+  ValidationPipe,
+  Query,
+} from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
+
+import { Status } from 'src/entities';
+import { Public } from 'src/common/decorators';
+import {
+  ID_PARAM,
+  ID_PROPERTY,
+  EMPTY_STRING,
+  SEARCH_QUERY,
+} from 'src/utils/constants';
+
 import { StatusesService } from './statuses.service';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
-import { Status } from 'src/entities';
-import { PageOptionsDto } from 'src/utils/pagination';
-import { ID_PARAM, ID_PROPERTY, EMPTY_STRING, SEARCH_QUERY } from 'src/utils/constants';
-import { DeleteResult } from 'typeorm';
 
 @Controller('statuses')
 export class StatusesController {
@@ -19,15 +38,14 @@ export class StatusesController {
     return this.statusesService.create(createStatusDto);
   }
 
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Status>> {
-    return this.statusesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Status[]> {
+    return this.statusesService.findAll(search ?? EMPTY_STRING);
   }
 
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Status> {

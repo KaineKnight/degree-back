@@ -1,15 +1,38 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, Min } from 'class-validator';
 
 export class TaskFilterDto {
+  @Min(1)
   @IsOptional()
-  readonly brands?: string;
+  readonly search?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly brands?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly models?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly categories?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly problems?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly statuses?: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly firstNames: string = '';
+
+  @Min(1)
+  @IsOptional()
+  readonly lastNames: string = '';
 
   @IsOptional()
-  readonly models?: string;
-
-  @IsOptional()
-  readonly categories?: string;
-
-  @IsOptional()
-  readonly problems?: string;
+  readonly hasRecommendation: boolean = false;
 }

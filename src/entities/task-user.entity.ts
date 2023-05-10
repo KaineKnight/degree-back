@@ -1,11 +1,23 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
 import { User } from './user.entity';
 import { Task } from './task.entity';
 
 @Entity('tasks_users')
 export class TaskUser {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryColumn()
+  userId: string;
+
+  @PrimaryColumn()
+  taskId: string;
 
   @ManyToOne(() => User, (user) => user.tasks)
   user: User;
@@ -15,4 +27,13 @@ export class TaskUser {
 
   @Column()
   isRejected: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

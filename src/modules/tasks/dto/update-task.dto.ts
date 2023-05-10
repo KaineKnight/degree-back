@@ -1,7 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType } from '@nestjs/swagger';
 import { CreateTaskDto } from './create-task.dto';
 import { IsEmail, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class UpdateTaskDto extends PartialType(CreateTaskDto) {
   @Expose()
@@ -25,11 +25,11 @@ export class UpdateTaskDto extends PartialType(CreateTaskDto) {
   contactEmail?: string;
 
   @IsOptional()
-  categoryId?: string;
-
-  @IsOptional()
-  brandId?: string;
+  modelId?: string;
 
   @IsOptional()
   problemTitle?: string;
+
+  @IsOptional()
+  statusId?: string;
 }

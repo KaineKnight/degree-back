@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Like, Repository } from 'typeorm';
 
 import { Model, Problem } from 'src/entities';
-import { PageOptionsDto, PageMetaDto, PageDto } from 'src/utils/pagination';
+import { ASC_ORDER } from 'src/utils/constants';
 
 import { RelatedProblemData } from './types';
 import { CreateProblemDto, UpdateProblemDto } from './dto';
@@ -29,11 +29,9 @@ export class ProblemsService {
       .where('model.title = :title', { title: createProblemDto.title })
       .getOne();
     if (foundProblem) throw new BadRequestException(PROBLEM_ALREADY_EXISTS);
-    const model =
-      createProblemDto.modelTitle &&
-      (await this.modelRepository.findOneBy({
-        title: createProblemDto.modelTitle,
-      }));
+    const model = await this.modelRepository.findOneBy({
+      title: createProblemDto.modelTitle,
+    });
     const problem: Problem = await this.problemRepository.save({
       ...createProblemDto,
       model,
@@ -41,26 +39,19 @@ export class ProblemsService {
     return problem;
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-    search: string,
-  ): Promise<PageDto<Problem>> {
-    const { order, take, skip } = pageOptionsDto;
-    const [data, itemCount] = await this.problemRepository.findAndCount({
+  async findAll(search: string): Promise<Problem[]> {
+    const problems: Problem[] = await this.problemRepository.find({
       where: { title: Like(`%${search}%`) },
       relations: ['model', 'model.category', 'model.brand'],
       order: {
         model: {
-          title: order,
-          category: { title: order },
-          brand: { title: order },
+          title: ASC_ORDER,
+          category: { title: ASC_ORDER },
+          brand: { title: ASC_ORDER },
         },
       },
-      take,
-      skip,
     });
-    const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    return new PageDto(data, meta);
+    return problems;
   }
 
   async findOne(id: string): Promise<Problem> {

@@ -11,21 +11,18 @@ import {
   Query,
   UsePipes,
   ValidationPipe,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
 import { PageOptionsDto, PageDto } from '../../utils/pagination';
 import { GetRequestUserId, Public } from '../../common/decorators';
-import {
-  ID_PARAM,
-  ID_PROPERTY,
-  EMPTY_STRING,
-  SEARCH_QUERY,
-} from 'src/utils/constants';
-import { Task } from 'src/entities';
+import { ID_PARAM, ID_PROPERTY } from 'src/utils/constants';
+import { Task, User } from 'src/entities';
 
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto';
+import { TaskFilterDto } from './dto/task-filter.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -45,19 +42,9 @@ export class TasksController {
   findAll(
     @GetRequestUserId() userId: string,
     @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-    @Query('isRecommendation') isRecommendation: boolean,
-    @Query('brand') brand: string,
-    @Query('category') category: string,
-    @Query('model') model: string,
-    @Query('problem') problem: string,
+    @Query() taskFilterDto: TaskFilterDto,
   ): Promise<PageDto<Task>> {
-    return this.tasksService.findAll(
-      pageOptionsDto,
-      search ?? EMPTY_STRING,
-      userId,
-      isRecommendation ?? false,
-    );
+    return this.tasksService.findAll(pageOptionsDto, taskFilterDto, userId);
   }
 
   @Get(ID_PARAM)
@@ -79,5 +66,24 @@ export class TasksController {
   @HttpCode(HttpStatus.OK)
   remove(@Param(ID_PROPERTY) id: string): Promise<DeleteResult> {
     return this.tasksService.remove(id);
+  }
+
+  @Post(`${ID_PARAM}/accept`)
+  @HttpCode(HttpStatus.OK)
+  acceptTaskByUser(
+    @GetRequestUserId() userId: string,
+    @Param(ID_PROPERTY) taskId: string,
+  ): Promise<User> {
+    return this.tasksService.acceptTaskByUser(userId, taskId);
+  }
+
+  @Post(`${ID_PARAM}/reject`)
+  @HttpCode(HttpStatus.OK)
+  rejectTaskByUser(
+    @GetRequestUserId() userId: string,
+    @Param(ID_PROPERTY) taskId: string,
+    @Query('isRejected', ParseBoolPipe) isRejected: boolean,
+  ): Promise<User> {
+    return this.tasksService.rejectTaskByUser(userId, taskId, isRejected);
   }
 }

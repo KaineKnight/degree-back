@@ -7,3 +7,5 @@ export * from './roles';
 export * from './statuses';
 export * from './tasks';
 export * from './users';
+export * from './placemarks';
+export * from './questions';

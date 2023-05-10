@@ -39,11 +39,8 @@ export class RolesController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
-    @Query() pageOptionsDto: PageOptionsDto,
-    @Query(SEARCH_QUERY) search: string,
-  ): Promise<PageDto<Role>> {
-    return this.rolesService.findAll(pageOptionsDto, search ?? EMPTY_STRING);
+  findAll(@Query(SEARCH_QUERY) search: string): Promise<Role[]> {
+    return this.rolesService.findAll(search ?? EMPTY_STRING);
   }
 
   @Get(ID_PARAM)
