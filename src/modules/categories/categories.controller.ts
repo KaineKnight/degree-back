@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
-import { PageOptionsDto, PageDto } from 'src/utils/pagination';
 import {
   ID_PARAM,
   ID_PROPERTY,
@@ -22,10 +21,10 @@ import {
   SEARCH_QUERY,
 } from 'src/utils/constants';
 import { Category } from 'src/entities';
+import { Public } from 'src/common/decorators';
 
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
-import { Public } from 'src/common/decorators';
 
 @Controller('category')
 export class CategoriesController {

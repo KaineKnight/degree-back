@@ -8,7 +8,6 @@ import { DeleteResult, Repository } from 'typeorm';
 
 import { Problem, Status, Task, TaskUser, User } from '../../entities';
 import { PageOptionsDto, PageMetaDto, PageDto } from '../../utils/pagination';
-import { USER_NOT_FOUND } from 'src/utils/constants';
 
 import { CreateTaskDto, UpdateTaskDto, TaskFilterDto } from './dto';
 import { TasksHelperService } from './tasks-helper.service';
@@ -25,8 +24,6 @@ export class TasksService {
     private readonly problemRepository: Repository<Problem>,
     @InjectRepository(Status)
     private readonly statusRepository: Repository<Status>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     @InjectRepository(TaskUser)
     private readonly taskUserRepository: Repository<TaskUser>,
   ) {}
