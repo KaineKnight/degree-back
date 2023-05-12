@@ -26,7 +26,7 @@ import { Public } from 'src/common/decorators';
 import { ProblemsService } from './problems.service';
 import { CreateProblemDto, UpdateProblemDto } from './dto';
 
-@Controller('problem')
+@Controller('problems')
 export class ProblemsController {
   constructor(private readonly problemsService: ProblemsService) {}
 

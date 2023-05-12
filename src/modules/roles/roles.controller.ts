@@ -20,7 +20,6 @@ import {
   EMPTY_STRING,
   SEARCH_QUERY,
 } from 'src/utils/constants';
-import { PageDto, PageOptionsDto } from 'src/utils/pagination';
 import { Role } from 'src/entities';
 
 import { RolesService } from './roles.service';

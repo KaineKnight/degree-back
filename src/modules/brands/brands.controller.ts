@@ -26,7 +26,7 @@ import { BrandsService } from './brands.service';
 import { CreateBrandDto, UpdateBrandDto } from './dto';
 import { Public } from 'src/common/decorators';
 
-@Controller('brand')
+@Controller('brands')
 export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
