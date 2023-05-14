@@ -3,5 +3,6 @@ export type MaxMinDiff = {
   time: number;
   brand: number;
   category: number;
+  model: number;
   commonness: number;
 };

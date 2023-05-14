@@ -47,8 +47,8 @@ export class User {
   @Column({ nullable: true })
   hashedRt: string;
 
-  @ApiProperty({ example: '1 1 1 1 1', description: 'Users\'s priorities'})
-  @Column({default: '1 1 1 1 1'})
+  @ApiProperty({ example: '1 1 1 1 1 1', description: 'Users\'s priorities'})
+  @Column({default: '1 1 1 1 1 1'})
   priorities: string;
 
   @ApiProperty({ example: '2023-11-11', description: 'Creation date'})

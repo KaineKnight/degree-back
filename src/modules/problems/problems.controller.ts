@@ -40,8 +40,11 @@ export class ProblemsController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(@Query(SEARCH_QUERY) search: string): Promise<Problem[]> {
-    return this.problemsService.findAll(search ?? EMPTY_STRING);
+  findAll(
+    @Query(SEARCH_QUERY) search: string,
+    @Query('model') modelId: string,
+  ): Promise<Problem[]> {
+    return this.problemsService.findAll(search ?? EMPTY_STRING, modelId);
   }
 
   @Public()

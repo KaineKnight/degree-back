@@ -49,7 +49,21 @@ export class ModelsService {
     return model;
   }
 
-  async findAll(search: string): Promise<Model[]> {
+  async findAll(
+    search: string,
+    brandId: string,
+    categoryId: string,
+  ): Promise<Model[]> {
+    if (brandId && categoryId) {
+      const models = this.modelRepository
+        .createQueryBuilder('model')
+        .leftJoinAndSelect('model.brand', 'brand')
+        .leftJoinAndSelect('model.category', 'category')
+        .where('brand.id = :brandId', { brandId })
+        .andWhere('category.id = :categoryId', { categoryId })
+        .getMany();
+      return models;
+    }
     const models: Model[] = await this.modelRepository.find({
       where: { title: Like(`%${search}%`) },
       relations: ['brand', 'category'],

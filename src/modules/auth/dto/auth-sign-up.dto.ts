@@ -6,7 +6,12 @@ export class AuthSignUpnDto {
   @ApiProperty({ example: 'John', description: 'User Name' })
   @IsNotEmpty()
   @IsString()
-  name: string;
+  firstName: string;
+
+  @ApiProperty({ example: 'John', description: 'User Name' })
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @ApiProperty({ example: 'em@il.com', description: 'User Email' })
   @IsNotEmpty()

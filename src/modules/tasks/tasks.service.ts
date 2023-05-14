@@ -8,6 +8,7 @@ import { DeleteResult, Repository } from 'typeorm';
 
 import { Problem, Status, Task, TaskUser, User } from '../../entities';
 import { PageOptionsDto, PageMetaDto, PageDto } from '../../utils/pagination';
+import { PROBLEM_NOT_FOUND } from '../problems/constants';
 
 import { CreateTaskDto, UpdateTaskDto, TaskFilterDto } from './dto';
 import { TasksHelperService } from './tasks-helper.service';
@@ -29,16 +30,14 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    const problem = await this.problemRepository
+    const problem: Problem = await this.problemRepository
       .createQueryBuilder('problem')
-      .innerJoinAndSelect('problem.model', 'model')
+      .innerJoin('problem.model', 'model')
       .where('model.id = :id', { id: createTaskDto.modelId })
-      .andWhere('problem.title = : title', {
-        title: createTaskDto.problemTitle,
-      })
+      .andWhere('problem.id = :modelId', { modelId: createTaskDto.problemId })
       .getOne();
-    if (!problem) throw new BadRequestException('Problem does not exist');
-    const task = await this.taskRepository.save({
+    if (!problem) throw new BadRequestException(PROBLEM_NOT_FOUND);
+    const task: Task = await this.taskRepository.save({
       ...createTaskDto,
       problem,
     });
@@ -50,7 +49,13 @@ export class TasksService {
     taskFilterDto: TaskFilterDto,
     userId: string,
   ): Promise<PageDto<Task>> {
+    //console.log(pageOptionsDto);
+    //console.log(taskFilterDto);
+
     const { take, skip, order } = pageOptionsDto;
+    //console.log({ take, skip, order });
+    //console.log(pageOptionsDto.skip);
+
     const {
       search,
       brands,
@@ -105,6 +110,8 @@ export class TasksService {
       queryBuilder.andWhere('user.lastName IN (:lastNames)', {
         lastNames: lastNames.split(' '),
       });
+    console.log(!!userId);
+    console.log(!!hasRecommendation);
 
     if (!userId || !hasRecommendation) {
       const [data, itemCount] = await queryBuilder
@@ -112,11 +119,13 @@ export class TasksService {
         .skip(skip)
         .take(take)
         .getManyAndCount();
+      console.log('no rec');
       const meta = new PageMetaDto({ itemCount, pageOptionsDto });
       return new PageDto(data, meta);
     }
 
     // multi-criteria linear convolution algorithm
+    console.log('yes rec');
 
     // 2. get all tasks
     queryBuilder.andWhere('task.isCompleted = :isCompleted', {

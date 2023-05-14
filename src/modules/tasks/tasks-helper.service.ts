@@ -19,6 +19,7 @@ import {
   Weighs,
 } from './types';
 import { TASK_NOT_FOUND } from './constants';
+import { log } from 'console';
 
 @Injectable()
 export class TasksHelperService {
@@ -41,32 +42,38 @@ export class TasksHelperService {
       minBrand: 1,
       maxCategory: 0,
       minCategory: 1,
+      maxModel: 0,
+      minModel: 1,
       maxCommonness: 0,
       minCommonness: 1,
     };
 
     tasks.forEach((task) => {
-      const price = task?.problem?.price ?? 0;
-      const time = -task?.problem?.time ?? 0; // negative time
-      const brand = task?.brand?.weight ?? 0;
-      const category = task?.category?.weight ?? 0;
-      const commonness = task?.problem?.commonnessWeight ?? 0;
+      const price = task.problem.price ?? 0;
+      const time = task.problem.time ?? 0; // negative time
+      const brand = task.problem.model.brand.weight ?? 0;
+      const category = task.problem.model.category.weight ?? 0;
+      const model = task.problem.model.weight ?? 0;
+      const commonness = task.problem.commonnessWeight ?? 0;
 
-      if (price > minMax.maxPrice) minMax.maxPrice = price;
-      if (price < minMax.minPrice) minMax.minPrice = price;
+      if (price > minMax.maxPrice) minMax.maxPrice = +price;
+      if (price < minMax.minPrice) minMax.minPrice = +price;
 
       // time in hours
-      if (time > minMax.maxTime) minMax.maxTime = time;
-      if (time < minMax.minTime) minMax.minTime = time;
+      if (time < minMax.maxTime) minMax.maxTime = +time;
+      if (time > minMax.minTime) minMax.minTime = +time;
 
-      if (brand > minMax.maxBrand) minMax.maxBrand = brand;
-      if (brand < minMax.minBrand) minMax.minBrand = brand;
+      if (brand > minMax.maxBrand) minMax.maxBrand = +brand;
+      if (brand < minMax.minBrand) minMax.minBrand = +brand;
 
-      if (category > minMax.maxCategory) minMax.maxCategory = category;
-      if (category < minMax.minCategory) minMax.minCategory = category;
+      if (category > minMax.maxCategory) minMax.maxCategory = +category;
+      if (category < minMax.minCategory) minMax.minCategory = +category;
 
-      if (commonness > minMax.maxCommonness) minMax.maxCommonness = commonness;
-      if (commonness < minMax.minCommonness) minMax.minCommonness = commonness;
+      if (model > minMax.maxModel) minMax.maxModel = +model;
+      if (model < minMax.minModel) minMax.minModel = +model;
+
+      if (commonness > minMax.maxCommonness) minMax.maxCommonness = +commonness;
+      if (commonness < minMax.minCommonness) minMax.minCommonness = +commonness;
     });
     return minMax;
   }
@@ -74,9 +81,10 @@ export class TasksHelperService {
   computeMaxMinDiff(minMax: MinMax): MaxMinDiff {
     const maxMinDiff: MaxMinDiff = {
       price: minMax.maxPrice - minMax.minPrice,
-      time: minMax.maxTime - minMax.minTime,
+      time: -minMax.maxTime - -minMax.minTime,
       brand: minMax.maxBrand - minMax.minBrand,
       category: minMax.maxCategory - minMax.minCategory,
+      model: minMax.maxModel - minMax.minModel,
       commonness: minMax.maxCommonness - minMax.minCommonness,
     };
     return maxMinDiff;
@@ -84,11 +92,12 @@ export class TasksHelperService {
 
   getCriterionWeighs(task, user): CriterionsWeighs {
     const criterions: CriterionsWeighs = {
-      brand: task?.brand?.weight ?? 1,
-      category: task?.category?.weight ?? 1,
-      problem: task?.problem?.commonnessWeight ?? 1,
-      price: task?.problem?.price ?? 0,
-      time: task?.problem?.time ?? 0,
+      brand: task.problem.model.brand.weight,
+      category: task.problem.model.category.weight,
+      model: task.problem.model.weight,
+      problem: task.problem.commonnessWeight,
+      price: +task.problem.price,
+      time: +task.problem.time,
       isConnected: user.tasks.some(
         (userTask) => userTask?.user?.id === user?.id,
       ),
@@ -101,12 +110,14 @@ export class TasksHelperService {
     maxMinDiff: MaxMinDiff,
     criterions: CriterionsWeighs,
   ): NormalizedWeighs {
-    const { price, time, brand, category, problem, isConnected } = criterions;
+    const { price, time, brand, category, model, problem, isConnected } = criterions;
+
     const normalized: NormalizedWeighs = {
-      price: !price ? 1 : (price - minMax.minPrice) / maxMinDiff.price,
-      time: !time ? 1 : (-time - minMax.minTime) / maxMinDiff.time,
+      price: (price - minMax.minPrice) / maxMinDiff.price,
+      time: (minMax.minTime - time) / maxMinDiff.time,
       brand: (brand - minMax.minBrand) / maxMinDiff.brand,
       category: (category - minMax.minCategory) / maxMinDiff.category,
+      model: (model - minMax.minModel) / maxMinDiff.model,
       commonness: (problem - minMax.minCommonness) / maxMinDiff.commonness,
       isConnected,
     };
@@ -114,12 +125,13 @@ export class TasksHelperService {
   }
 
   computeWeighs(normalized: NormalizedWeighs, priorities): Weighs {
-    const { price, category, brand, commonness, time, isConnected } =
+    const { price, category, brand, model, commonness, time, isConnected } =
       normalized;
     const weighs: Weighs = {
       price: price * priorities[Criterions.price],
       category: category * priorities[Criterions.category],
       brand: brand * priorities[Criterions.brand],
+      model: model * priorities[Criterions.model],
       commonness: commonness * priorities[Criterions.commonness],
       time: time * priorities[Criterions.time],
       isConnected,
@@ -128,7 +140,8 @@ export class TasksHelperService {
   }
 
   computeSupercriterion(tasks, minMax, maxMinDiff, user, priorities) {
-    return tasks.forEach((task: any) => {
+    const tasksCriterions: Array<any> = [];
+    tasks.forEach((task: any) => {
       // 5.1 get criterion weights
       const criterions: CriterionsWeighs = this.getCriterionWeighs(task, user);
 
@@ -143,14 +156,17 @@ export class TasksHelperService {
       const weighs = this.computeWeighs(normalized, priorities);
 
       // 5.4 summarize supercriterion of task
-      task.supercriterion =
+      const supercriterion =
         weighs.price +
         weighs.category +
         weighs.brand +
         weighs.commonness +
         weighs.time +
         -weighs.isConnected;
+      tasksCriterions.push({ ...task, supercriterion })
     });
+    
+    return tasksCriterions;
   }
 
   async recommendTasks(tasks, userId): Promise<Array<any>> {
@@ -178,16 +194,17 @@ export class TasksHelperService {
       user,
       priorities,
     );
-
-    tasksCriterions.sort((first: any, second: any) =>
-      first.supercriterion.localCompare(second.supercriterion),
-    );
+    log('-------------------');
+    tasksCriterions.forEach((t) => log(t.supercriterion));
+    tasksCriterions.sort((a, b) => b.supercriterion - a.supercriterion);
+    log('+++++++++++++++++++');
+    tasksCriterions.forEach((t) => log(t.supercriterion));
 
     // criterions:
     // *price -> max // category -> max // brand -> max // commonness -> max
     // *time -> min = -time -> max // isConnected -> min = -isConnected -> max
 
-    return tasks;
+    return tasksCriterions;
   }
 
   sliceTasksPage(

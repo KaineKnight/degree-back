@@ -39,7 +39,15 @@ export class ProblemsService {
     return problem;
   }
 
-  async findAll(search: string): Promise<Problem[]> {
+  async findAll(search: string, modelId): Promise<Problem[]> {
+    if (modelId) {
+      const problems = this.problemRepository
+        .createQueryBuilder('problem')
+        .leftJoinAndSelect('problem.model', 'model')
+        .where('model.id = :modelId', { modelId })
+        .getMany();
+      return problems;
+    }
     const problems: Problem[] = await this.problemRepository.find({
       where: { title: Like(`%${search}%`) },
       relations: ['model', 'model.category', 'model.brand'],

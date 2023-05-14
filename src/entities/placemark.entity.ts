@@ -15,10 +15,10 @@ export class Placemark {
   @Column()
   title: string;
 
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2 })
   x: number;
 
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2 })
   y: number;
 
   @CreateDateColumn()

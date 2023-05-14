@@ -23,10 +23,10 @@ export class Problem {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ nullable: true }) // hours to complete
+  @Column('decimal', { nullable: true }) // hours to complete
   time: number;
 
-  @Column({ nullable: true }) // rubles
+  @Column('decimal', { nullable: true }) // rubles
   price: number;
 
   @Column({ default: 0 })

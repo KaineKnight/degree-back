@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -5,6 +6,8 @@ import {
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
+
+import { emptyStringToNull } from 'src/utils';
 
 export class CreateTaskDto {
   @IsNotEmpty()
@@ -19,6 +22,8 @@ export class CreateTaskDto {
   @IsPhoneNumber()
   contactPhone: string;
 
+  @Transform((params) => emptyStringToNull(params))
+  @Transform((params) => emptyStringToNull(params))
   @IsOptional()
   @IsEmail()
   contactEmail: string;
@@ -27,5 +32,5 @@ export class CreateTaskDto {
   modelId: string;
 
   @IsNotEmpty()
-  problemTitle: string;
+  problemId: string;
 }

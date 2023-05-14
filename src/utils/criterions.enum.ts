@@ -1,9 +1,10 @@
 export enum Criterions {
   price = 0,
-  category = 1,
-  brand = 2,
-  commonness = 3,
-  time = 4,
+  time = 1,
+  category = 2,
+  brand = 3,
+  model = 4,
+  commonness = 5,
 }
 
 /*

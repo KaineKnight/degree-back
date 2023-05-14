@@ -40,8 +40,16 @@ export class ModelsController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(@Query(SEARCH_QUERY) search: string): Promise<Model[]> {
-    return this.modelsService.findAll(search ?? EMPTY_STRING);
+  findAll(
+    @Query(SEARCH_QUERY) search: string,
+    @Query('brand') brandId: string,
+    @Query('category') categoryId: string, 
+  ): Promise<Model[]> {
+    return this.modelsService.findAll(
+      search ?? EMPTY_STRING,
+      brandId,
+      categoryId,
+    );
   }
 
   @Public()

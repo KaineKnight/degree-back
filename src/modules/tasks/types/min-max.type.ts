@@ -7,6 +7,8 @@ export type MinMax = {
   minBrand: number;
   maxCategory: number;
   minCategory: number;
+  maxModel: number;
+  minModel: number;
   maxCommonness: number;
   minCommonness: number;
 };

@@ -3,6 +3,7 @@ export type NormalizedWeighs = {
   time: number;
   brand: number;
   category: number;
+  model: number;
   commonness: number;
   isConnected: boolean;
 };

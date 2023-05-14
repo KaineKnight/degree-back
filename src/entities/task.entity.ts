@@ -50,9 +50,7 @@ export class Task {
   })
   status: Status;
 
-  @Column({
-    default: '6e01a6d8-ef19-11ed-a05b-0242ac120003',
-  })
+  @Column({ default: 'f0986a2e-2cb0-4b31-b43f-10ddd6248d65' })
   statusId: string;
 
   @CreateDateColumn()
