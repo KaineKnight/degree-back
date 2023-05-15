@@ -79,7 +79,7 @@ export class TasksService {
       .leftJoinAndSelect('model.category', 'category');
 
     if (search)
-      queryBuilder.where('task.title ILIKE :search', {
+      queryBuilder.where('problem.title ILIKE :search', {
         search: `%${search}%`,
       });
     if (models)
