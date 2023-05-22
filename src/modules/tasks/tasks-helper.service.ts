@@ -19,7 +19,6 @@ import {
   Weighs,
 } from './types';
 import { TASK_NOT_FOUND } from './constants';
-import { log } from 'console';
 
 @Injectable()
 export class TasksHelperService {
@@ -110,7 +109,8 @@ export class TasksHelperService {
     maxMinDiff: MaxMinDiff,
     criterions: CriterionsWeighs,
   ): NormalizedWeighs {
-    const { price, time, brand, category, model, problem, isConnected } = criterions;
+    const { price, time, brand, category, model, problem, isConnected } =
+      criterions;
 
     const normalized: NormalizedWeighs = {
       price: (price - minMax.minPrice) / maxMinDiff.price,
@@ -163,9 +163,9 @@ export class TasksHelperService {
         weighs.commonness +
         weighs.time +
         -weighs.isConnected;
-      tasksCriterions.push({ ...task, supercriterion })
+      tasksCriterions.push({ ...task, supercriterion });
     });
-    
+
     return tasksCriterions;
   }
 
@@ -194,11 +194,11 @@ export class TasksHelperService {
       user,
       priorities,
     );
-    log('-------------------');
-    tasksCriterions.forEach((t) => log(t.supercriterion));
+    // log('-------------------');
+    // tasksCriterions.forEach((t) => log(t.supercriterion));
     tasksCriterions.sort((a, b) => b.supercriterion - a.supercriterion);
-    log('+++++++++++++++++++');
-    tasksCriterions.forEach((t) => log(t.supercriterion));
+    console.log('+++++++++++++++++++');
+    tasksCriterions.forEach((t) => console.log(t.supercriterion));
 
     // criterions:
     // *price -> max // category -> max // brand -> max // commonness -> max

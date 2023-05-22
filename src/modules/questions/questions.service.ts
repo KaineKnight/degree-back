@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateQuestionDto, UpdateQuestionDto } from './dto';
-import { Question } from 'src/entities/question.entity';
-import { DeleteResult, Like, Repository } from 'typeorm';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QUESTION_ALREADY_EXISTS, QUESTION_NOT_FOUND } from './constants';
+import { DeleteResult, Like, Repository } from 'typeorm';
+
+import { Question } from 'src/entities/question.entity';
 import { ASC_ORDER } from 'src/utils/constants';
+
+import { QUESTION_ALREADY_EXISTS, QUESTION_NOT_FOUND } from './constants';
+import { CreateQuestionDto, UpdateQuestionDto } from './dto';
 
 @Injectable()
 export class QuestionsService {

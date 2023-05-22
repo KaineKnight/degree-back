@@ -10,7 +10,6 @@ import { ROLES_KEY } from '../decorators/constants';
 import { Request } from 'express';
 
 // apply after atguard
-// todo: check what is inside request
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}

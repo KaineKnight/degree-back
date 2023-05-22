@@ -110,8 +110,8 @@ export class TasksService {
       queryBuilder.andWhere('user.lastName IN (:lastNames)', {
         lastNames: lastNames.split(' '),
       });
-    console.log(!!userId);
-    console.log(!!hasRecommendation);
+    // console.log(!!userId);
+    // console.log(!!hasRecommendation);
 
     if (!userId || !hasRecommendation) {
       const [data, itemCount] = await queryBuilder
