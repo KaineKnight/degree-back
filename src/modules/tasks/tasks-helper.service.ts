@@ -207,15 +207,11 @@ export class TasksHelperService {
     return tasksCriterions;
   }
 
-  sliceTasksPage(
-    tasks: any,
-    meta: PageMetaDto,
-    pageOptionsDto: PageOptionsDto,
-  ) {
-    const pageStartProduct = (meta.page - 1) * meta.take;
-    const pageStart = pageStartProduct > 0 ? pageStartProduct : 0;
-    const pageEnd = pageStart + pageOptionsDto.take;
-    const data = tasks.slice(pageStart, pageEnd);
+  sliceTasksPage(tasks: any, take, page) {
+    const start = (page - 1) * take;
+    const end = start + take;
+    const data = tasks.slice(start, end);
+    console.log('dataLen', data.length);
     return data;
   }
 

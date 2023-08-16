@@ -20,7 +20,7 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
       ?.replace('Bearer', '')
       .trim();
     if (!refreshToken)
-      throw new ForbiddenException('Refresh token unacceptable ')
+      throw new ForbiddenException('Refresh token unacceptable ');
     const user = {
       ...payload,
       refreshToken,

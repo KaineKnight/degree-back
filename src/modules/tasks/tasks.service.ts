@@ -49,12 +49,9 @@ export class TasksService {
     taskFilterDto: TaskFilterDto,
     userId: string,
   ): Promise<PageDto<Task>> {
-    //console.log(pageOptionsDto);
+    console.log(pageOptionsDto);
     //console.log(taskFilterDto);
-
-    const { take, skip, order } = pageOptionsDto;
-    //console.log({ take, skip, order });
-    //console.log(pageOptionsDto.skip);
+    const { take, order, skip, page } = pageOptionsDto;
 
     const {
       search,
@@ -140,12 +137,8 @@ export class TasksService {
 
     // 6. slice elements according to pagination
     const meta = new PageMetaDto({ itemCount, pageOptionsDto });
-    const data = this.taskHelper.sliceTasksPage(
-      recommendedTasks,
-      meta,
-      pageOptionsDto,
-    );
-
+    const data = this.taskHelper.sliceTasksPage(recommendedTasks, take, page);
+    // return data;
     // 7. return data
     return new PageDto(data, meta);
   }
@@ -226,10 +219,16 @@ export class TasksService {
       userId,
       taskId,
     );
-    await this.taskUserRepository.save({
-      ...userTask,
-      isRejected: isRejected,
-    });
+    if (isRejected) {
+      const userAndTask = await this.taskUserRepository.save({
+        userId,
+        taskId,
+      });
+      await this.taskUserRepository.save({
+        ...userAndTask,
+        isRejected: isRejected,
+      });
+    } else if (userTask) this.taskUserRepository.delete({ userId, taskId });
     return user;
   }
 }

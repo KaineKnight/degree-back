@@ -39,14 +39,24 @@ export class TasksController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll(
+  async findAll(
     @GetRequestUserId() userId: string,
     @Query() pageOptionsDto: PageOptionsDto,
     @Query() taskFilterDto: TaskFilterDto,
   ): Promise<PageDto<Task>> {
-    return this.tasksService.findAll(pageOptionsDto, taskFilterDto, userId);
+    return await this.tasksService.findAll(pageOptionsDto, taskFilterDto, userId);
   }
 
+  @Public()
+  @Get('test')
+  @HttpCode(HttpStatus.OK)
+  findAlls(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ) {
+    return pageOptionsDto;
+  }
+
+  @Public()
   @Get(ID_PARAM)
   @HttpCode(HttpStatus.OK)
   findOne(@Param(ID_PROPERTY) id: string): Promise<Task> {
